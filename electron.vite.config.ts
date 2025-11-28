@@ -7,6 +7,7 @@ export default defineConfig({
   main: {
     resolve: {
       alias: {
+        '@': resolve(''),
         '@main': resolve('src/main'),
       },
     },
@@ -15,6 +16,7 @@ export default defineConfig({
   preload: {
     resolve: {
       alias: {
+        '@': resolve(''),
         '@preload': resolve('src/preload'),
       },
     },
@@ -23,8 +25,8 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
+        '@': resolve(''),
         '@renderer': resolve('src/renderer/src'),
-        '@': resolve('src/renderer/src'),
       },
     },
     plugins: [react(), tailwind()],

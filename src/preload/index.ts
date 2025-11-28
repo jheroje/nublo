@@ -1,5 +1,5 @@
+import { AIApi, Api, DBApi } from '@preload/types';
 import { contextBridge, ipcRenderer } from 'electron';
-import { AIApi, Api, DBApi } from './types';
 
 const dbApi: DBApi = {
   testConnection: (connString) => ipcRenderer.invoke('dbService:testConnection', connString),

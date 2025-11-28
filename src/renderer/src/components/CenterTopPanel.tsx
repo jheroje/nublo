@@ -1,5 +1,5 @@
 import { Editor } from '@renderer/components/editor/SQLEditor';
-import { Button } from '@renderer/components/ui/button';
+import { Button } from '@renderer/shadcn/ui/button';
 import React from 'react';
 
 interface CenterTopPanelProps {

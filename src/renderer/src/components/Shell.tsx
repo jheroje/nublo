@@ -1,14 +1,14 @@
+import { CenterBottomPanel } from '@renderer/components/CenterBottomPanel';
+import { CenterTopPanel } from '@renderer/components/CenterTopPanel';
+import { LeftPanel } from '@renderer/components/LeftPanel';
+import { RightPanel } from '@renderer/components/RightPanel';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '@renderer/components/ui/resizable';
+} from '@renderer/shadcn/ui/resizable';
 import React, { useState } from 'react';
 import { AIMessage, QueryResult, SchemaResult } from '../../../types';
-import { CenterBottomPanel } from './CenterBottomPanel';
-import { CenterTopPanel } from './CenterTopPanel';
-import { LeftPanel } from './LeftPanel';
-import { RightPanel } from './RightPanel';
 
 export default function Shell(): React.JSX.Element {
   const [connectionString, setConnectionString] = useState('');

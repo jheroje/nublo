@@ -1,10 +1,10 @@
-import { Button } from '@renderer/components/ui/button';
+import { Button } from '@renderer/shadcn/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@renderer/components/ui/collapsible';
-import { Input } from '@renderer/components/ui/input';
+} from '@renderer/shadcn/ui/collapsible';
+import { Input } from '@renderer/shadcn/ui/input';
 import { ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { SchemaResult } from '../../../types';

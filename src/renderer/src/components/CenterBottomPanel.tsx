@@ -5,7 +5,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@renderer/shadcn/ui/table';
 import React from 'react';
 import { QueryResult } from '../../../types';
 

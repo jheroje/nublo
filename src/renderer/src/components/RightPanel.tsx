@@ -1,17 +1,17 @@
-import { Button } from '@renderer/components/ui/button';
+import { Button } from '@renderer/shadcn/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@renderer/components/ui/select';
-import { Textarea } from '@renderer/components/ui/textarea';
+} from '@renderer/shadcn/ui/select';
+import { Textarea } from '@renderer/shadcn/ui/textarea';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
-import { AIMessage } from 'src/types';
+import { AIMessage } from '../../../types';
 
 interface RightPanelProps {
   chatMessages: AIMessage[];
