@@ -1,4 +1,5 @@
 import '@renderer/assets/main.css';
+import 'highlight.js/styles/github-dark.css';
 
 import App from '@renderer/App';
 import { StrictMode } from 'react';

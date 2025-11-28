@@ -7,6 +7,7 @@ export function setupDbService(): void {
     'dbService:testConnection',
     async (_, connString: string): Promise<DBConnectionStatus> => {
       const client = new Client({ connectionString: connString });
+
       try {
         await client.connect();
         await client.query('SELECT NOW()');
@@ -20,6 +21,7 @@ export function setupDbService(): void {
 
   ipcMain.handle('dbService:getSchema', async (_, connString: string): Promise<SchemaResult> => {
     const client = new Client({ connectionString: connString });
+
     try {
       await client.connect();
 
@@ -59,6 +61,7 @@ export function setupDbService(): void {
     'dbService:runQuery',
     async (_, connString: string, sql: string): Promise<QueryResult> => {
       const client = new Client({ connectionString: connString });
+
       try {
         await client.connect();
         const res = await client.query(sql);

@@ -1,5 +1,5 @@
 import { monaco } from '@renderer/components/editor/monaco-config';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';
 
 interface EditorProps {
@@ -34,7 +34,7 @@ export const Editor = ({ value, onChange, onExecute }: EditorProps): React.JSX.E
     <MonacoEditor
       ref={monacoRef}
       language="sql"
-      theme="vs-dark"
+      theme="github-dark"
       value={value}
       onChange={onChange}
       options={{

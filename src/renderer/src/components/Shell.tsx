@@ -16,9 +16,11 @@ export default function Shell(): React.JSX.Element {
   const [currentSQL, setCurrentSQL] = useState('SELECT * FROM users LIMIT 10;');
   const [schema, setSchema] = useState<SchemaResult>([]);
   const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
+  const [queryError, setQueryError] = useState('');
   const [aiPrompt, setAiPrompt] = useState('');
   const [connectionError, setConnectionError] = useState('');
   const [chatMessages, setChatMessages] = useState<AIMessage[]>([]);
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.0-flash-exp:free');
 
   const handleConnect = async (): Promise<void> => {
     setConnectionError('');
@@ -42,17 +44,19 @@ export default function Shell(): React.JSX.Element {
   const handleRunQuery = async (): Promise<void> => {
     if (!isConnected) return;
 
+    setQueryError('');
+
     try {
       const res = await window.api.db.runQuery(connectionString, currentSQL);
       console.log('Query result:', res);
       setQueryResult(res);
-    } catch (err) {
-      console.error(err);
-      alert('Query failed');
+    } catch (error: any) {
+      console.error(error);
+      setQueryError('Query failed: ' + error.message || error);
     }
   };
 
-  const handleAiGenerate = async (): Promise<void> => {
+  const handleAiGenerate = (): void => {
     if (!aiPrompt.trim()) return;
 
     if (!schema.length) {
@@ -63,21 +67,54 @@ export default function Shell(): React.JSX.Element {
     const userMsg = aiPrompt;
     setChatMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
     setAiPrompt('');
+    setChatMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
-    try {
-      const sql = await window.api.ai.generateQuery(schema, userMsg);
-      setChatMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: `Here is a query for you:\n\`\`\`sql\n${sql}\n\`\`\`` },
-      ]);
-      setCurrentSQL(sql);
-    } catch (err) {
-      console.error(err);
-      setChatMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'Sorry, I encountered an error generating the query.' },
-      ]);
-    }
+    let fullResponse = '';
+
+    window.api.ai.streamQuery(
+      schema,
+      userMsg,
+      selectedModel,
+      (chunk) => {
+        fullResponse += chunk;
+        setChatMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastMsg = newMsgs[newMsgs.length - 1];
+          if (lastMsg.role === 'assistant') {
+            lastMsg.content = `Generating SQL:\n\`\`\`json\n${fullResponse}\n\`\`\``;
+          }
+          return newMsgs;
+        });
+      },
+      () => {
+        setChatMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastMsg = newMsgs[newMsgs.length - 1];
+          if (lastMsg.role === 'assistant') {
+            lastMsg.content = 'Finished streaming. Validating and parsing result...';
+          }
+          return newMsgs;
+        });
+      },
+      (error) => {
+        console.error('AI Stream Error:', error);
+
+        setChatMessages((prev) => [
+          ...prev.slice(0, -1),
+          { role: 'assistant', content: `⚠️ Stream/Parsing Error: ${error}` },
+        ]);
+      },
+      (finalSql) => {
+        setChatMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastMsg = newMsgs[newMsgs.length - 1];
+          lastMsg.content = `Here is the generated query:\n\`\`\`sql\n${finalSql}\n\`\`\``;
+          return newMsgs;
+        });
+
+        setCurrentSQL(finalSql);
+      }
+    );
   };
 
   return (
@@ -107,7 +144,7 @@ export default function Shell(): React.JSX.Element {
         <ResizableHandle />
 
         {/* Center Panel: Editor & Results */}
-        <ResizablePanel defaultSize={60}>
+        <ResizablePanel defaultSize={50}>
           <ResizablePanelGroup direction="vertical">
             {/* Top: Editor */}
             <ResizablePanel defaultSize={60} className="border-b flex flex-col">
@@ -123,7 +160,7 @@ export default function Shell(): React.JSX.Element {
 
             {/* Bottom: Results */}
             <ResizablePanel defaultSize={40} className="flex flex-col bg-background">
-              <CenterBottomPanel queryResult={queryResult} />
+              <CenterBottomPanel queryResult={queryResult} queryError={queryError} />
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
@@ -131,13 +168,15 @@ export default function Shell(): React.JSX.Element {
         <ResizableHandle />
 
         {/* Right Panel: AI Chat */}
-        <ResizablePanel defaultSize={20} minSize={20} className="border-l bg-muted/5 flex flex-col">
+        <ResizablePanel defaultSize={30} minSize={30} className="border-l bg-muted/5 flex flex-col">
           <RightPanel
             chatMessages={chatMessages}
             aiPrompt={aiPrompt}
             setAiPrompt={setAiPrompt}
             isConnected={isConnected}
             onAiGenerate={handleAiGenerate}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

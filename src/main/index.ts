@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { setupAiService } from '@main/ai/aiService';
 import { setupDbService } from '@main/db/dbService';

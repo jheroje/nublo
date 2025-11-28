@@ -1,46 +1,59 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import React from 'react';
 import { QueryResult } from '../../../types';
 
 interface CenterBottomPanelProps {
   queryResult: QueryResult | null;
+  queryError: string;
 }
 
-export function CenterBottomPanel({ queryResult }: CenterBottomPanelProps): React.JSX.Element {
+export function CenterBottomPanel({
+  queryResult,
+  queryError,
+}: CenterBottomPanelProps): React.JSX.Element {
   return (
     <>
       <div className="h-10 border-b flex items-center px-4 bg-muted/20">
         <span className="font-medium text-xs text-muted-foreground">QUERY RESULTS</span>
       </div>
       <div className="flex-1 overflow-auto">
-        {queryResult ? (
-          <table className="w-full text-sm text-left border-collapse">
-            <thead className="bg-muted sticky top-0 z-10">
-              <tr>
+        {queryError ? (
+          <div className="flex items-center justify-center h-full text-red-500 text-sm">
+            {queryError}
+          </div>
+        ) : queryResult ? (
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              <TableRow>
                 {queryResult.columns.map((col) => (
-                  <th
-                    key={col}
-                    className="p-2 border-b font-medium text-xs text-muted-foreground whitespace-nowrap"
-                  >
+                  <TableHead key={col} className="font-medium text-xs text-muted-foreground">
                     {col}
-                  </th>
+                  </TableHead>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {queryResult.rows.map((row, i) => (
-                <tr key={i} className="hover:bg-muted/50 border-b last:border-0">
+                <TableRow key={i}>
                   {queryResult.columns.map((col) => (
-                    <td
+                    <TableCell
                       key={col}
-                      className="p-2 border-r last:border-r-0 whitespace-nowrap max-w-[200px] truncate"
+                      className="border-r last:border-r-0 max-w-[200px] truncate"
                     >
                       {typeof row[col] === 'object' ? JSON.stringify(row[col]) : String(row[col])}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
             Run a query to see results

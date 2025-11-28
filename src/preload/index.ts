@@ -1,24 +1,38 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { DBConnectionStatus, QueryResult, SchemaResult } from '../types';
+import { AIApi, Api, DBApi } from './types';
 
-const dbApi = {
-  testConnection: (connString: string): Promise<DBConnectionStatus> =>
-    ipcRenderer.invoke('dbService:testConnection', connString),
-  getSchema: (connString: string): Promise<SchemaResult> =>
-    ipcRenderer.invoke('dbService:getSchema', connString),
-  runQuery: (connString: string, sql: string): Promise<QueryResult> =>
-    ipcRenderer.invoke('dbService:runQuery', connString, sql),
+const dbApi: DBApi = {
+  testConnection: (connString) => ipcRenderer.invoke('dbService:testConnection', connString),
+  getSchema: (connString) => ipcRenderer.invoke('dbService:getSchema', connString),
+  runQuery: (connString, sql) => ipcRenderer.invoke('dbService:runQuery', connString, sql),
 };
 
-const aiApi = {
-  generateQuery: (schema: SchemaResult, prompt: string): Promise<string> =>
-    ipcRenderer.invoke('aiService:generateQuery', schema, prompt),
+const aiApi: AIApi = {
+  streamQuery: (schema, prompt, model, onChunk, onEnd, onError, onComplete) => {
+    ipcRenderer.send('aiService:streamQuery', schema, prompt, model);
+
+    const chunkListener = (_: Electron.IpcRendererEvent, chunk: string) => onChunk(chunk);
+    const endListener = () => onEnd();
+    const errorListener = (_: Electron.IpcRendererEvent, error: string) => onError(error);
+    const completeListener = (_: Electron.IpcRendererEvent, sql: string) => onComplete(sql);
+
+    ipcRenderer.on('ai:stream-chunk', chunkListener);
+    ipcRenderer.on('ai:stream-end', endListener);
+    ipcRenderer.on('ai:stream-error', errorListener);
+    ipcRenderer.on('ai:query-complete', completeListener);
+
+    return () => {
+      ipcRenderer.removeListener('ai:stream-chunk', chunkListener);
+      ipcRenderer.removeListener('ai:stream-end', endListener);
+      ipcRenderer.removeListener('ai:stream-error', errorListener);
+      ipcRenderer.removeListener('ai:query-complete', completeListener);
+    };
+  },
 };
 
-contextBridge.exposeInMainWorld(
-  'api',
-  Object.freeze({
-    db: Object.freeze(dbApi),
-    ai: Object.freeze(aiApi),
-  })
-);
+const api: Api = {
+  db: dbApi,
+  ai: aiApi,
+};
+
+contextBridge.exposeInMainWorld('api', api);

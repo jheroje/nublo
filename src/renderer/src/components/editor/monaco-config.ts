@@ -1,11 +1,41 @@
 import * as monaco from 'monaco-editor';
 
-// Configure Monaco Editor environment
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+
+const GITHUB_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [
+    { token: 'comment', foreground: '8B949E' },
+    { token: 'string', foreground: 'A5D6FF' },
+    { token: 'keyword', foreground: 'FF7B72' },
+    { token: 'number', foreground: '79C0FF' },
+    { token: 'delimiter', foreground: 'C9D1D9' },
+    { token: 'type', foreground: '79C0FF' },
+    { token: 'identifier', foreground: 'C9D1D9' },
+    { token: 'variable', foreground: 'C9D1D9' },
+    { token: 'function', foreground: 'D2A8FF' },
+    { token: 'tag', foreground: '7EE787' },
+  ],
+  colors: {
+    'editor.foreground': '#C9D1D9',
+    'editor.background': '#0D1117',
+    'editorGutter.background': '#0D1117',
+    'editorLineNumber.foreground': '#6E7681',
+    'editorLineNumber.activeForeground': '#C9D1D9',
+    'editorCursor.foreground': '#C9D1D9',
+    'editor.selectionBackground': '#3392FF33',
+    'editor.inactiveSelectionBackground': '#3392FF33',
+    'editorIndentGuide.background': '#30363D',
+    'editorIndentGuide.activeBackground': '#484F58',
+  },
+};
+
+monaco.editor.defineTheme('github-dark', GITHUB_DARK_THEME_CONFIG);
 
 self.MonacoEnvironment = {
   getWorker(_: string, label: string) {

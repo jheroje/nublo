@@ -1,6 +1,16 @@
 import { Button } from '@renderer/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@renderer/components/ui/select';
 import { Textarea } from '@renderer/components/ui/textarea';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
 import { AIMessage } from 'src/types';
 
 interface RightPanelProps {
@@ -9,6 +19,8 @@ interface RightPanelProps {
   setAiPrompt: (value: string) => void;
   isConnected: boolean;
   onAiGenerate: () => void;
+  selectedModel: string;
+  onModelChange: (model: string) => void;
 }
 
 export function RightPanel({
@@ -17,11 +29,27 @@ export function RightPanel({
   setAiPrompt,
   isConnected,
   onAiGenerate,
+  selectedModel,
+  onModelChange,
 }: RightPanelProps): React.JSX.Element {
   return (
     <>
-      <div className="h-10 border-b flex items-center px-4 bg-muted/20">
+      <div className="h-10 border-b flex items-center justify-between px-4 bg-muted/20">
         <span className="font-medium text-xs text-muted-foreground">AI ASSISTANT</span>
+        <Select value={selectedModel} onValueChange={onModelChange}>
+          <SelectTrigger size="sm" className="w-fit text-xs">
+            <SelectValue placeholder="Select a model..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="google/gemini-2.0-flash-exp:free">
+              Gemini 2.0 Flash (Free)
+            </SelectItem>
+            <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B (Free)</SelectItem>
+            <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">
+              Llama 3.2 3B (Free)
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -37,11 +65,26 @@ export function RightPanel({
                   : 'bg-muted text-foreground'
               }`}
             >
-              {msg.content.split('\n').map((line, i) => (
-                <p key={i} className="mb-1 last:mb-0 wrap-break-word">
-                  {line}
-                </p>
-              ))}
+              <div className="prose prose-sm dark:prose-invert max-w-none wrap-break-word">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                  components={{
+                    pre: (props) => {
+                      return (
+                        <div className="overflow-auto w-full my-2 bg-black/50 rounded-md p-2">
+                          <pre {...props} />
+                        </div>
+                      );
+                    },
+                    code: (props) => {
+                      return <code className="bg-black/20 rounded px-1" {...props} />;
+                    },
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         ))}

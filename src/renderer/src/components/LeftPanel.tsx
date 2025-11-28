@@ -1,6 +1,12 @@
 import { Button } from '@renderer/components/ui/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@renderer/components/ui/collapsible';
 import { Input } from '@renderer/components/ui/input';
-import React from 'react';
+import { ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
 import { SchemaResult } from '../../../types';
 
 interface LeftPanelProps {
@@ -20,6 +26,20 @@ export function LeftPanel({
   schema,
   onConnect,
 }: LeftPanelProps): React.JSX.Element {
+  const [openTables, setOpenTables] = useState<Set<string>>(new Set());
+
+  const toggleTable = (tableName: string) => {
+    setOpenTables((prev) => {
+      const next = new Set(prev);
+      if (next.has(tableName)) {
+        next.delete(tableName);
+      } else {
+        next.add(tableName);
+      }
+      return next;
+    });
+  };
+
   return (
     <>
       <h2 className="text-lg font-bold mb-4">Nublo</h2>
@@ -42,24 +62,39 @@ export function LeftPanel({
         {isConnected && (
           <div className="mt-6">
             <h3 className="font-semibold mb-2 text-xs uppercase text-muted-foreground">Schema</h3>
-            <div className="h-[calc(100vh-250px)] overflow-y-auto text-xs">
+            <div className="h-[calc(100vh-250px)] overflow-y-auto text-xs space-y-1">
               {schema.map((table) => (
-                <div key={table.table_name} className="mb-3">
-                  <div className="font-medium text-foreground flex items-center gap-1">
-                    <span className="text-blue-500">#</span> {table.table_name}
-                  </div>
-                  <ul className="pl-3 border-l ml-1 mt-1 space-y-1">
-                    {table.columns.map((col) => (
-                      <li
-                        key={col.name}
-                        className="text-muted-foreground truncate"
-                        title={`${col.name} (${col.type})`}
-                      >
-                        {col.name} <span className="opacity-50 text-[10px]">{col.type}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <Collapsible
+                  key={table.table_name}
+                  open={openTables.has(table.table_name)}
+                  onOpenChange={() => toggleTable(table.table_name)}
+                >
+                  <CollapsibleTrigger className="w-full flex items-center gap-1 hover:bg-muted/50 rounded px-2 py-1.5 transition-colors">
+                    <ChevronRight
+                      className={`h-3 w-3 transition-transform ${
+                        openTables.has(table.table_name) ? 'rotate-90' : ''
+                      }`}
+                    />
+                    <span className="text-blue-500">#</span>
+                    <span className="font-medium text-foreground">{table.table_name}</span>
+                    <span className="ml-auto text-muted-foreground text-[10px]">
+                      {table.columns.length}
+                    </span>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pl-6 mt-1">
+                    <ul className="border-l ml-1 space-y-1">
+                      {table.columns.map((col) => (
+                        <li
+                          key={col.name}
+                          className="text-muted-foreground truncate pl-3 py-0.5"
+                          title={`${col.name} (${col.type})`}
+                        >
+                          {col.name} <span className="opacity-50 text-[10px]">{col.type}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CollapsibleContent>
+                </Collapsible>
               ))}
             </div>
           </div>

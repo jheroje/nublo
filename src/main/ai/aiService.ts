@@ -1,26 +1,89 @@
 import { ipcMain } from 'electron';
+import OpenAI from 'openai';
+import { format } from 'sql-formatter';
 import { SchemaResult } from '../../types';
 
 export function setupAiService(): void {
-  ipcMain.handle(
-    'aiService:generateQuery',
-    async (_, schema: SchemaResult, prompt: string): Promise<string> => {
-      const promptLower = prompt.toLowerCase();
+  const openai = new OpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY,
+  });
 
-      // Simple mock logic
-      const userTable = schema.find((t) => t.table_name.toLowerCase() === 'users');
+  ipcMain.on(
+    'aiService:streamQuery',
+    async (event, schema: SchemaResult, prompt: string, model: string) => {
+      let fullResponse = '';
 
-      if (promptLower.includes('users') && userTable) {
-        return 'SELECT id, name, email FROM users LIMIT 10;';
+      try {
+        const schemaString = JSON.stringify(schema, null, 2);
+
+        const systemPrompt = `
+        You are a PostgreSQL SQL expert. Generate a SQL query based on the user prompt and the provided database schema.
+
+        Schema:
+        ${schemaString}
+        
+        Output Format Rule:
+          1. Your entire response MUST be a single JSON object.
+          2. The JSON object MUST contain a key named "query".
+          3. The value of the "query" key MUST be the raw PostgreSQL query string.
+          4. Prefer to use statements such as ilike instead of equality (=) when possible.
+          5. DO NOT include any text, explanations, or markdown outside of the JSON object.
+        
+        Example of desired output:
+        { "query": "SELECT id, name FROM users WHERE age > 30;" }
+        `;
+
+        const stream = await openai.chat.completions.create({
+          model: model || 'google/gemini-2.0-flash-exp:free',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt },
+          ],
+          stream: true,
+        });
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            event.sender.send('ai:stream-chunk', content);
+            fullResponse += content;
+          }
+        }
+
+        event.sender.send('ai:stream-end');
+
+        let cleanJsonString = fullResponse.trim();
+
+        if (cleanJsonString.startsWith('```json')) {
+          cleanJsonString = cleanJsonString.substring('```json'.length).trim();
+        }
+        if (cleanJsonString.endsWith('```')) {
+          cleanJsonString = cleanJsonString
+            .substring(0, cleanJsonString.length - '```'.length)
+            .trim();
+        }
+
+        const parsedJson = JSON.parse(cleanJsonString);
+        let finalSql = parsedJson.query;
+
+        try {
+          finalSql = format(finalSql, { language: 'postgresql' });
+        } catch (err) {
+          console.warn('Failed to format SQL:', err);
+        }
+
+        event.sender.send('ai:query-complete', finalSql);
+      } catch (error: any) {
+        console.error('AI Service Error:', error);
+        event.sender.send(
+          'ai:stream-error',
+          JSON.stringify({
+            message: error.message || 'Unknown error during stream processing.',
+            response: fullResponse,
+          })
+        );
       }
-
-      // Default mock if no specific match
-      if (schema.length > 0) {
-        const firstTable = schema[0];
-        return `SELECT * FROM ${firstTable.table_name} LIMIT 10;`;
-      }
-
-      return 'SELECT 1;';
     }
   );
 }
