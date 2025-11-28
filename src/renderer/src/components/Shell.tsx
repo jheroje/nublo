@@ -36,8 +36,8 @@ export default function Shell(): React.JSX.Element {
       } else {
         setConnectionError(status.message);
       }
-    } catch (error: any) {
-      setConnectionError(error.message || 'Unknown error');
+    } catch (error) {
+      setConnectionError(error instanceof Error ? error.message : 'Unknown error');
     }
   };
 
@@ -48,11 +48,9 @@ export default function Shell(): React.JSX.Element {
 
     try {
       const res = await window.api.db.runQuery(connectionString, currentSQL);
-      console.log('Query result:', res);
       setQueryResult(res);
-    } catch (error: any) {
-      console.error(error);
-      setQueryError('Query failed: ' + error.message || error);
+    } catch (error) {
+      setQueryError('Query failed: ' + (error instanceof Error ? error.message : error));
     }
   };
 
@@ -97,8 +95,6 @@ export default function Shell(): React.JSX.Element {
         });
       },
       (error) => {
-        console.error('AI Stream Error:', error);
-
         setChatMessages((prev) => [
           ...prev.slice(0, -1),
           { role: 'assistant', content: `⚠️ Stream/Parsing Error: ${error}` },

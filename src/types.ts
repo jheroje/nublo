@@ -18,7 +18,7 @@ export type SchemaResult = SchemaTable[];
 
 export type QueryResult = {
   columns: string[];
-  rows: any[];
+  rows: Record<string, unknown>[];
 };
 
 export type AIMessage = {

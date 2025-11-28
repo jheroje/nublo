@@ -13,8 +13,11 @@ export function setupDbService(): void {
         await client.query('SELECT NOW()');
         await client.end();
         return { success: true, message: 'Connection successful' };
-      } catch (error: any) {
-        return { success: false, message: error.message || 'Connection failed' };
+      } catch (error) {
+        return {
+          success: false,
+          message: error instanceof Error ? error.message : 'Connection failed',
+        };
       }
     }
   );
@@ -22,39 +25,34 @@ export function setupDbService(): void {
   ipcMain.handle('dbService:getSchema', async (_, connString: string): Promise<SchemaResult> => {
     const client = new Client({ connectionString: connString });
 
-    try {
-      await client.connect();
+    await client.connect();
 
-      const res = await client.query(`
-        SELECT table_name, column_name, data_type, is_nullable
-        FROM information_schema.columns
-        WHERE table_schema = 'public'
-        ORDER BY table_name, ordinal_position
-      `);
+    const res = await client.query(`
+      SELECT table_name, column_name, data_type, is_nullable
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+      ORDER BY table_name, ordinal_position
+    `);
 
-      await client.end();
+    await client.end();
 
-      const tables: Record<string, SchemaTable> = {};
+    const tables: Record<string, SchemaTable> = {};
 
-      res.rows.forEach((row) => {
-        if (!tables[row.table_name]) {
-          tables[row.table_name] = {
-            table_name: row.table_name,
-            columns: [],
-          };
-        }
-        tables[row.table_name].columns.push({
-          name: row.column_name,
-          type: row.data_type,
-          is_nullable: row.is_nullable === 'YES',
-        });
+    res.rows.forEach((row) => {
+      if (!tables[row.table_name]) {
+        tables[row.table_name] = {
+          table_name: row.table_name,
+          columns: [],
+        };
+      }
+      tables[row.table_name].columns.push({
+        name: row.column_name,
+        type: row.data_type,
+        is_nullable: row.is_nullable === 'YES',
       });
+    });
 
-      return Object.values(tables);
-    } catch (error) {
-      console.error('getSchema error:', error);
-      throw error;
-    }
+    return Object.values(tables);
   });
 
   ipcMain.handle(
@@ -62,18 +60,13 @@ export function setupDbService(): void {
     async (_, connString: string, sql: string): Promise<QueryResult> => {
       const client = new Client({ connectionString: connString });
 
-      try {
-        await client.connect();
-        const res = await client.query(sql);
-        await client.end();
-        return {
-          columns: res.fields.map((f) => f.name),
-          rows: res.rows,
-        };
-      } catch (error) {
-        console.error('runQuery error:', error);
-        throw error;
-      }
+      await client.connect();
+      const res = await client.query(sql);
+      await client.end();
+      return {
+        columns: res.fields.map((f) => f.name),
+        rows: res.rows,
+      };
     }
   );
 }

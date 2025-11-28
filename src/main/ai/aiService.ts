@@ -67,19 +67,15 @@ export function setupAiService(): void {
         const parsedJson = JSON.parse(cleanJsonString);
         let finalSql = parsedJson.query;
 
-        try {
-          finalSql = format(finalSql, { language: 'postgresql' });
-        } catch (err) {
-          console.warn('Failed to format SQL:', err);
-        }
+        finalSql = format(finalSql, { language: 'postgresql' });
 
         event.sender.send('ai:query-complete', finalSql);
-      } catch (error: any) {
-        console.error('AI Service Error:', error);
+      } catch (error) {
         event.sender.send(
           'ai:stream-error',
           JSON.stringify({
-            message: error.message || 'Unknown error during stream processing.',
+            message:
+              error instanceof Error ? error.message : 'Unknown error during stream processing.',
             response: fullResponse,
           })
         );
