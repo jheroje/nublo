@@ -1,14 +1,17 @@
 import { monaco } from '@renderer/components/editor/monaco-config';
 import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';
+import { SchemaResult } from '../../../../types';
+import { registerSQLAutocomplete } from './sql-autocomplete';
 
 interface EditorProps {
   value: string;
   onChange: (value: string | undefined) => void;
   onExecute: () => void;
+  schema: SchemaResult;
 }
 
-export const Editor = ({ value, onChange, onExecute }: EditorProps): React.JSX.Element => {
+export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): React.JSX.Element => {
   const monacoRef = useRef<MonacoEditorHandle | null>(null);
 
   useEffect(() => {
@@ -30,6 +33,14 @@ export const Editor = ({ value, onChange, onExecute }: EditorProps): React.JSX.E
     };
   }, [onExecute]);
 
+  useEffect(() => {
+    const disposable = registerSQLAutocomplete(schema);
+
+    return () => {
+      disposable.dispose();
+    };
+  }, [schema]);
+
   return (
     <MonacoEditor
       ref={monacoRef}
@@ -47,6 +58,16 @@ export const Editor = ({ value, onChange, onExecute }: EditorProps): React.JSX.E
         scrollbar: {
           verticalScrollbarSize: 10,
           horizontalScrollbarSize: 10,
+        },
+        suggestOnTriggerCharacters: true,
+        quickSuggestions: {
+          other: true,
+          comments: false,
+          strings: false,
+        },
+        suggest: {
+          showKeywords: true,
+          showSnippets: true,
         },
       }}
     />

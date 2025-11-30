@@ -149,6 +149,7 @@ export default function Shell(): React.JSX.Element {
                 setCurrentSQL={setCurrentSQL}
                 isConnected={isConnected}
                 onRunQuery={handleRunQuery}
+                schema={schema}
               />
             </ResizablePanel>
 
