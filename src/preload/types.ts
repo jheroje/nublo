@@ -18,7 +18,14 @@ export type AIApi = {
   ) => () => void;
 };
 
+export interface StoreApi {
+  get: <T>(key: string) => Promise<T>;
+  set: (key: string, value: any) => Promise<void>;
+  delete: (key: string) => Promise<void>;
+}
+
 export type Api = {
   db: DBApi;
   ai: AIApi;
+  store: StoreApi;
 };

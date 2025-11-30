@@ -1,3 +1,4 @@
+import { SavedConnections } from '@renderer/components/SavedConnections';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Collapsible,
@@ -15,7 +16,7 @@ interface LeftPanelProps {
   isConnected: boolean;
   connectionError: string;
   schema: SchemaResult;
-  onConnect: () => void;
+  onConnect: (connectionString?: string) => void;
 }
 
 export function LeftPanel({
@@ -44,8 +45,12 @@ export function LeftPanel({
     <>
       <h2 className="text-lg font-bold mb-4">Nublo</h2>
       <div className="space-y-4">
+        <SavedConnections onConnect={(connStr) => onConnect(connStr)} />
+
         <div>
-          <label className="text-xs font-medium text-muted-foreground uppercase">Connection</label>
+          <label className="text-xs font-medium text-muted-foreground uppercase">
+            New Connection
+          </label>
           <Input
             placeholder="postgresql://..."
             value={connectionString}
@@ -53,7 +58,11 @@ export function LeftPanel({
             className="mt-1 h-8 text-xs"
           />
         </div>
-        <Button onClick={onConnect} className="w-full h-8 text-xs" disabled={isConnected}>
+        <Button
+          onClick={() => onConnect(connectionString)}
+          className="w-full h-8 text-xs"
+          disabled={isConnected}
+        >
           {isConnected ? 'Connected' : 'Connect'}
         </Button>
 
@@ -62,7 +71,7 @@ export function LeftPanel({
         {isConnected && (
           <div className="mt-6">
             <h3 className="font-semibold mb-2 text-xs uppercase text-muted-foreground">Schema</h3>
-            <div className="h-[calc(100vh-250px)] overflow-y-auto text-xs space-y-1">
+            <div className="h-[calc(100vh-350px)] overflow-y-auto text-xs space-y-1">
               {schema.map((table) => (
                 <Collapsible
                   key={table.table_name}

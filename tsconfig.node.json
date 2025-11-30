@@ -4,7 +4,9 @@
   "compilerOptions": {
     "composite": true,
     "types": ["electron-vite/node"],
-    "baseUrl": ".", 
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "paths": {
       "@main/*": ["src/main/*"],
       "@preload/*": ["src/preload/*"],

@@ -20,6 +20,14 @@ export default defineConfig({
         '@preload': resolve('src/preload'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].js',
+        },
+      },
+    },
     plugins: [externalizeDepsPlugin()],
   },
   renderer: {

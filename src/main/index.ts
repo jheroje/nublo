@@ -3,9 +3,14 @@ import 'dotenv/config';
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { setupAiService } from '@main/ai/aiService';
 import { setupDbService } from '@main/db/dbService';
+import { setupStoreService } from '@main/store/storeService';
 import { app, BrowserWindow, shell } from 'electron';
-import { join } from 'path';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import icon from '../../resources/icon.png?asset';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -49,6 +54,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window);
   });
 
+  setupStoreService();
   setupDbService();
   setupAiService();
 

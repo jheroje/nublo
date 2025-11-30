@@ -22,16 +22,21 @@ export default function Shell(): React.JSX.Element {
   const [chatMessages, setChatMessages] = useState<AIMessage[]>([]);
   const [selectedModel, setSelectedModel] = useState('google/gemini-2.0-flash-exp:free');
 
-  const handleConnect = async (): Promise<void> => {
+  const handleConnect = async (connStr?: string): Promise<void> => {
     setConnectionError('');
 
+    const targetConnectionString = typeof connStr === 'string' ? connStr : connectionString;
+    if (typeof connStr === 'string') {
+      setConnectionString(connStr);
+    }
+
     try {
-      const status = await window.api.db.testConnection(connectionString);
+      const status = await window.api.db.testConnection(targetConnectionString);
 
       if (status.success) {
         setIsConnected(true);
 
-        const schemaRes = await window.api.db.getSchema(connectionString);
+        const schemaRes = await window.api.db.getSchema(targetConnectionString);
         setSchema(schemaRes);
       } else {
         setConnectionError(status.message);

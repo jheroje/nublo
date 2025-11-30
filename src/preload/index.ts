@@ -1,4 +1,4 @@
-import { AIApi, Api, DBApi } from '@preload/types';
+import { AIApi, Api, DBApi, StoreApi } from '@preload/types';
 import { contextBridge, ipcRenderer } from 'electron';
 
 const dbApi: DBApi = {
@@ -30,9 +30,16 @@ const aiApi: AIApi = {
   },
 };
 
+const storeApi: StoreApi = {
+  get: (key) => ipcRenderer.invoke('store:get', key),
+  set: (key, value) => ipcRenderer.invoke('store:set', key, value),
+  delete: (key) => ipcRenderer.invoke('store:delete', key),
+};
+
 const api: Api = {
   db: dbApi,
   ai: aiApi,
+  store: storeApi,
 };
 
 contextBridge.exposeInMainWorld('api', api);
