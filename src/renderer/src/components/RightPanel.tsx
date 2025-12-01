@@ -85,10 +85,10 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
             <SelectValue placeholder="Select a model..." />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B (Free)</SelectItem>
             <SelectItem value="google/gemini-2.0-flash-exp:free">
               Gemini 2.0 Flash (Free)
             </SelectItem>
-            <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B (Free)</SelectItem>
             <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">
               Llama 3.2 3B (Free)
             </SelectItem>

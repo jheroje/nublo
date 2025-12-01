@@ -18,7 +18,7 @@ const createTab = (tabNumber: number): Tab => ({
   queryError: '',
   chatMessages: [],
   chatPrompt: '',
-  selectedModel: 'google/gemini-2.0-flash-exp:free',
+  selectedModel: 'openai/gpt-oss-20b:free',
 });
 
 function tabsReducer(state: TabsState, action: TabAction): TabsState {
