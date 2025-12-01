@@ -34,17 +34,17 @@ export function LeftPanel({
     setConnectionError('');
 
     try {
-      const status = await window.api.db.testConnection(connectionString);
+      await window.api.db.testConnection(connectionString);
 
-      if (status.success) {
-        setIsConnected(true);
-        const schemaRes = await window.api.db.getSchema(connectionString);
-        setSchema(schemaRes);
-      } else {
-        setConnectionError(status.message);
-      }
+      setIsConnected(true);
+
+      const schemaRes = await window.api.db.getSchema(connectionString);
+      setSchema(schemaRes);
     } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Unknown error');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      setConnectionError(errorMessage || 'Unknown error');
+      setIsConnected(false);
     }
   };
 

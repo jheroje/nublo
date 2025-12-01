@@ -30,7 +30,9 @@ export function CenterTopPanel({
       const res = await window.api.db.runQuery(activeConnection.connectionString, currentSQL);
       setQueryResult(res);
     } catch (error) {
-      setQueryError('Query failed: ' + (error instanceof Error ? error.message : error));
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      setQueryError(`Query failed: ${errorMessage}`);
     }
   };
 

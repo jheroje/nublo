@@ -69,11 +69,12 @@ export function setupAIService(): void {
 
       event.sender.send('ai:query-complete', finalSql);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
       event.sender.send(
         'ai:stream-error',
         JSON.stringify({
-          message:
-            error instanceof Error ? error.message : 'Unknown error during stream processing.',
+          message: errorMessage || 'Unknown error during stream processing.',
           response: fullResponse,
         })
       );

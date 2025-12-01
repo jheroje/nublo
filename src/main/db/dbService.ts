@@ -1,26 +1,22 @@
 import { ipcMain } from 'electron';
 import { Client } from 'pg';
-import { DBConnectionStatus, QueryResult, Schema, SchemaTable } from 'src/types';
+import { QueryResult, Schema, SchemaTable } from 'src/types';
 
 export function setupDBService(): void {
-  ipcMain.handle(
-    'db:testConnection',
-    async (_, connString: string): Promise<DBConnectionStatus> => {
-      const client = new Client({ connectionString: connString });
+  ipcMain.handle('db:testConnection', async (_, connString: string): Promise<void> => {
+    const client = new Client({ connectionString: connString });
 
-      try {
-        await client.connect();
-        await client.query('SELECT NOW()');
-        await client.end();
-        return { success: true, message: 'Connection successful' };
-      } catch (error) {
-        return {
-          success: false,
-          message: error instanceof Error ? error.message : 'Connection failed',
-        };
-      }
+    try {
+      await client.connect();
+      await client.query('SELECT NOW()');
+      await client.end();
+      return;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      throw new Error(errorMessage || 'Connection failed');
     }
-  );
+  });
 
   ipcMain.handle('db:getSchema', async (_, connString: string): Promise<Schema> => {
     const client = new Client({ connectionString: connString });

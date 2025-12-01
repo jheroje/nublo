@@ -55,13 +55,9 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
 
   useEffect(() => {
     const loadConnections = async () => {
-      try {
-        const saved = await window.api.store.get<Connection[]>('saved_connections');
-        if (saved) {
-          setConnections(saved);
-        }
-      } catch (e) {
-        console.error('Failed to load saved connections', e);
+      const saved = await window.api.store.get<Connection[]>('saved_connections');
+      if (saved) {
+        setConnections(saved);
       }
     };
     loadConnections();

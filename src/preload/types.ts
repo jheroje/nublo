@@ -1,7 +1,7 @@
-import { DBConnectionStatus, QueryResult, Schema } from 'src/types';
+import { QueryResult, Schema } from 'src/types';
 
 export type DBApi = {
-  testConnection: (connString: string) => Promise<DBConnectionStatus>;
+  testConnection: (connString: string) => Promise<void>;
   getSchema: (connString: string) => Promise<Schema>;
   runQuery: (connString: string, sql: string) => Promise<QueryResult>;
 };
