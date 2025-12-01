@@ -13,7 +13,7 @@ type TabAction =
 const createTab = (tabNumber: number): Tab => ({
   id: crypto.randomUUID(),
   title: `Tab ${tabNumber}`,
-  editorSQL: '',
+  editorSQL: 'SELECT orders.*, users.* FROM orders JOIN users ON users.id = orders.user_id;',
   queryResult: null,
   queryError: '',
   chatMessages: [],

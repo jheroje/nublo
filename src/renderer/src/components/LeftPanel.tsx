@@ -1,12 +1,10 @@
 import { SavedConnections } from '@renderer/components/SavedConnections';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
-import { Button } from '@renderer/shadcn/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@renderer/shadcn/ui/collapsible';
-import { Input } from '@renderer/shadcn/ui/input';
 import { ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { Schema } from 'src/types';
@@ -26,7 +24,7 @@ export function LeftPanel({
 }: LeftPanelProps): React.JSX.Element {
   const [openTables, setOpenTables] = useState<Set<string>>(new Set());
 
-  const { activeConnection, setActiveConnection, isConnected, setIsConnected } = useConnection();
+  const { isConnected, setIsConnected } = useConnection();
 
   const onConnect = async (connectionString: string): Promise<void> => {
     if (!connectionString) return;
@@ -62,39 +60,8 @@ export function LeftPanel({
 
   return (
     <>
-      <h2 className="text-lg font-bold mb-4">Nublo</h2>
       <div className="space-y-4">
         <SavedConnections onConnect={onConnect} />
-
-        <div>
-          <label className="text-xs font-medium text-muted-foreground uppercase">
-            New Connection
-          </label>
-          <Input
-            placeholder="postgresql://..."
-            value={activeConnection?.connectionString ?? ''}
-            onChange={(e) =>
-              setActiveConnection((prev) =>
-                prev
-                  ? { ...prev, connectionString: e.target.value }
-                  : {
-                      id: '',
-                      name: 'Custom Connection',
-                      color: 'bg-gray-500',
-                      connectionString: e.target.value,
-                    }
-              )
-            }
-            className="mt-1 h-8 text-xs"
-          />
-        </div>
-        <Button
-          onClick={() => onConnect(activeConnection?.connectionString ?? '')}
-          className="w-full h-8 text-xs"
-          disabled={isConnected}
-        >
-          {isConnected ? 'Connected' : 'Connect'}
-        </Button>
 
         {connectionError && <p className="text-red-500 text-xs">{connectionError}</p>}
 

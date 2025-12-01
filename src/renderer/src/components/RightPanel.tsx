@@ -75,7 +75,7 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
 
   return (
     <>
-      <div className="h-10 border-b flex items-center justify-between px-4 bg-muted/20">
+      <div className="h-10 flex items-center justify-between px-4 bg-muted/20">
         <span className="font-medium text-xs text-muted-foreground">AI ASSISTANT</span>
         <Select
           value={selectedModel}
@@ -134,7 +134,7 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
         ))}
       </div>
 
-      <div className="p-4 border-t bg-background">
+      <div className="p-4 bg-background">
         <div className="relative">
           <Textarea
             placeholder="Ask AI to generate SQL"

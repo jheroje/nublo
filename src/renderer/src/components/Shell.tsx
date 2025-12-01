@@ -24,17 +24,14 @@ export default function Shell(): React.JSX.Element {
   return (
     <div className="h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col">
       {/* Draggable title bar region for window dragging */}
-      <div className="h-8 w-full bg-muted/10 app-drag" />
+      <div className="h-8 w-full bg-muted/10 app-drag flex justify-center items-center">
+        <p className="text-xs font-bold">Nublo</p>
+      </div>
 
       {/* Core app */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
         {/* Left Panel: Connections & Schema */}
-        <ResizablePanel
-          defaultSize={20}
-          minSize={20}
-          maxSize={40}
-          className="p-4 border-r bg-muted/10"
-        >
+        <ResizablePanel defaultSize={20} minSize={20} maxSize={40} className="p-4 bg-muted/10">
           <LeftPanel
             schema={schema}
             setSchema={setSchema}
@@ -52,7 +49,7 @@ export default function Shell(): React.JSX.Element {
             onValueChange={setActiveTab}
             className="h-full flex flex-col w-full gap-0"
           >
-            <div className="bg-muted/10 border-b flex items-center justify-start">
+            <div className="bg-muted/10 flex items-center justify-start">
               <TabsList className="h-9 bg-transparent p-0 justify-start overflow-x-auto no-scrollbar rounded-b-none">
                 {tabs.map((tab) => (
                   <TabsTrigger
@@ -80,7 +77,7 @@ export default function Shell(): React.JSX.Element {
                 size="icon"
                 variant="ghost"
                 onClick={addTab}
-                className="h-8 w-8 ml-2 shrink-0 mr-4"
+                className="h-8 w-8 ml-2 shrink-0 mr-4 rounded-full"
               >
                 <Plus size={16} />
               </Button>
@@ -95,7 +92,7 @@ export default function Shell(): React.JSX.Element {
                 <ResizablePanel defaultSize={65}>
                   <ResizablePanelGroup direction="vertical">
                     {/* Top: Editor */}
-                    <ResizablePanel defaultSize={60} className="border-b flex flex-col">
+                    <ResizablePanel defaultSize={60} className="flex flex-col">
                       <CenterTopPanel schema={schema} />
                     </ResizablePanel>
 
@@ -111,11 +108,7 @@ export default function Shell(): React.JSX.Element {
                 <ResizableHandle />
 
                 {/* Right Panel: AI Chat */}
-                <ResizablePanel
-                  defaultSize={35}
-                  minSize={35}
-                  className="border-l bg-muted/5 flex flex-col"
-                >
+                <ResizablePanel defaultSize={35} minSize={35} className="bg-muted/5 flex flex-col">
                   <RightPanel schema={schema} />
                 </ResizablePanel>
               </ResizablePanelGroup>

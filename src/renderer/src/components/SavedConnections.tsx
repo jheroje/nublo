@@ -119,7 +119,7 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-xs uppercase text-muted-foreground">Saved Connections</h3>
+        <h3 className="font-semibold text-xs uppercase text-muted-foreground">Connections</h3>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
