@@ -1,83 +1,75 @@
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { generateObject } from 'ai';
 import { ipcMain } from 'electron';
-import OpenAI from 'openai';
 import { format } from 'sql-formatter';
 import { Schema } from 'src/types';
+import { z } from 'zod';
+
+const SqlQuerySchema = z.object({
+  query: z.string().describe('The raw PostgreSQL SQL query string'),
+});
 
 export function setupAIService(): void {
-  const openai = new OpenAI({
-    baseURL: 'https://openrouter.ai/api/v1',
+  const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY,
   });
 
-  ipcMain.on('ai:streamQuery', async (event, schema: Schema, prompt: string, model: string) => {
-    let fullResponse = '';
+  ipcMain.handle(
+    'ai:generateQuery',
+    async (event, schema: Schema, prompt: string, model: string) => {
+      event.sender.send('ai:status', 'Generating SQL query...');
 
-    try {
-      const schemaString = JSON.stringify(schema, null, 2);
+      let rawQueryOutput = '';
 
-      const systemPrompt = `
-        You are a PostgreSQL SQL expert. Generate a SQL query based on the user prompt and the provided database schema.
+      try {
+        const schemaString = JSON.stringify(schema, null, 2);
 
-        Schema:
-        ${schemaString}
-        
-        Output Format Rule:
-          1. Your entire response MUST be a single JSON object.
-          2. The JSON object MUST contain a key named "query".
-          3. The value of the "query" key MUST be the raw PostgreSQL query string.
-          4. Prefer to use statements such as ilike instead of equality (=) when possible.
-          5. DO NOT include any text, explanations, or markdown outside of the JSON object.
-        
-        Example of desired output:
-        { "query": "SELECT id, name FROM users WHERE age > 30;" }
+        const systemPrompt = `
+          You are a PostgreSQL SQL expert. Generate a SQL query based on the user prompt and the provided database schema.
+
+          Schema:
+          ${schemaString}
+
+          **OUTPUT INSTRUCTIONS**
+            1. Your entire response **MUST** be a single JSON object.
+            2. The JSON object **MUST** contain only one key named "query".
+            3. The value of the "query" key **MUST** be the raw PostgreSQL query string.
+            4. **CRITICAL:** DO NOT include any markdown formatting (like \`\`\`json or \`\`\`sql), explanations, or surrounding text. The response must start with '{' and end with '}'.
+
+          **IMPRECISION HANDLING (Prioritize Fuzzy Matching)**
+            * **TEXT FIELDS (Strings):** For filtering on text columns (e.g., status, name, description), always assume imprecision. **MUST** use the case-insensitive pattern matching operator **\`ILIKE\`** instead of strict equality (\`=\`). Enclose the value with the wildcard character (\`%\`) on both sides for partial matching (e.g., \`status ILIKE '%complete%'\`). Only use \`=\` when the user explicitly requests an exact match.
+            * **NUMERIC FIELDS (Numbers):** When the user uses terms like "around," "roughly," or "near," translate the request into a range using the **\`BETWEEN\`** operator (e.g., \`price BETWEEN 95 AND 105\`). For "over," "more than," "under," or "less than," use the appropriate **inequality operators (\`>\`, \`<\`,\`>=\`,\`<=\`).**
+            * **DATE/TIME FIELDS:** Translate requests for a specific day, month, or year into an explicit **date range** (using \`>=\` and \`< to define the start and end point\`). Alternatively, use **date functions** (e.g., \`DATE_TRUNC\`, \`DATE_PART\`) to match specific components like year or month (e.g., \`DATE_PART('year', order_date) = 2024\`).
+
+          Example of desired output:
+          { "query": "SELECT id, name FROM users WHERE age > 30;" }
         `;
 
-      const stream = await openai.chat.completions.create({
-        model: model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt },
-        ],
-        stream: true,
-      });
+        const { object } = await generateObject({
+          model: openrouter(model),
+          schema: SqlQuerySchema,
+          mode: 'json',
+          system: systemPrompt,
+          prompt: prompt,
+        });
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content;
-        if (content) {
-          event.sender.send('ai:stream-chunk', content);
-          fullResponse += content;
-        }
+        event.sender.send('ai:status', 'Query generated successfully. Formatting...');
+
+        rawQueryOutput = object.query;
+
+        const finalSql = format(rawQueryOutput, { language: 'postgresql' });
+
+        event.sender.send('ai:status', 'Complete.');
+
+        return { success: true, query: finalSql };
+      } catch (error) {
+        console.error('AI Query Generation Error:', error);
+
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error during AI processing.';
+
+        return { success: false, error: errorMessage, rawOutput: rawQueryOutput };
       }
-
-      event.sender.send('ai:stream-end');
-
-      let cleanJsonString = fullResponse.trim();
-
-      if (cleanJsonString.startsWith('```json')) {
-        cleanJsonString = cleanJsonString.substring('```json'.length).trim();
-      }
-      if (cleanJsonString.endsWith('```')) {
-        cleanJsonString = cleanJsonString
-          .substring(0, cleanJsonString.length - '```'.length)
-          .trim();
-      }
-
-      const parsedJson = JSON.parse(cleanJsonString);
-      let finalSql = parsedJson.query;
-
-      finalSql = format(finalSql, { language: 'postgresql' });
-
-      event.sender.send('ai:query-complete', finalSql);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-
-      event.sender.send(
-        'ai:stream-error',
-        JSON.stringify({
-          message: errorMessage || 'Unknown error during stream processing.',
-          response: fullResponse,
-        })
-      );
     }
-  });
+  );
 }

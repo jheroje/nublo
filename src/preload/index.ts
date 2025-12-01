@@ -2,31 +2,29 @@ import { AIApi, Api, DBApi, StoreApi } from '@preload/types';
 import { contextBridge, ipcRenderer } from 'electron';
 
 const dbApi: DBApi = {
-  testConnection: (connString) => ipcRenderer.invoke('db:testConnection', connString),
-  getSchema: (connString) => ipcRenderer.invoke('db:getSchema', connString),
-  runQuery: (connString, sql) => ipcRenderer.invoke('db:runQuery', connString, sql),
+  testConnection: (connectionString) => ipcRenderer.invoke('db:testConnection', connectionString),
+  getSchema: (connectionString) => ipcRenderer.invoke('db:getSchema', connectionString),
+  runQuery: (connectionString, sql) => ipcRenderer.invoke('db:runQuery', connectionString, sql),
 };
 
 const aiApi: AIApi = {
-  streamQuery: (schema, prompt, model, onChunk, onEnd, onError, onComplete) => {
-    ipcRenderer.send('ai:streamQuery', schema, prompt, model);
-
-    const chunkListener = (_: Electron.IpcRendererEvent, chunk: string) => onChunk(chunk);
-    const endListener = () => onEnd();
-    const errorListener = (_: Electron.IpcRendererEvent, error: string) => onError(error);
-    const completeListener = (_: Electron.IpcRendererEvent, sql: string) => onComplete(sql);
-
-    ipcRenderer.on('ai:stream-chunk', chunkListener);
-    ipcRenderer.on('ai:stream-end', endListener);
-    ipcRenderer.on('ai:stream-error', errorListener);
-    ipcRenderer.on('ai:query-complete', completeListener);
-
-    return () => {
-      ipcRenderer.removeListener('ai:stream-chunk', chunkListener);
-      ipcRenderer.removeListener('ai:stream-end', endListener);
-      ipcRenderer.removeListener('ai:stream-error', errorListener);
-      ipcRenderer.removeListener('ai:query-complete', completeListener);
+  generateQuery: async (schema, prompt, model, onStatus) => {
+    const statusListener = (_: Electron.IpcRendererEvent, status: string) => {
+      if (onStatus) onStatus(status);
     };
+    ipcRenderer.on('ai:status', statusListener);
+
+    try {
+      const result = await ipcRenderer.invoke('ai:generateQuery', schema, prompt, model);
+
+      if (result.success) {
+        return result.query;
+      } else {
+        throw new Error(result.error || 'Failed to generate query.');
+      }
+    } finally {
+      ipcRenderer.removeListener('ai:status', statusListener);
+    }
   },
 };
 

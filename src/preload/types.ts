@@ -1,21 +1,18 @@
 import { QueryResult, Schema } from 'src/types';
 
 export type DBApi = {
-  testConnection: (connString: string) => Promise<void>;
-  getSchema: (connString: string) => Promise<Schema>;
-  runQuery: (connString: string, sql: string) => Promise<QueryResult>;
+  testConnection: (connectionString: string) => Promise<void>;
+  getSchema: (connectionString: string) => Promise<Schema>;
+  runQuery: (connectionString: string, sql: string) => Promise<QueryResult>;
 };
 
 export type AIApi = {
-  streamQuery: (
+  generateQuery: (
     schema: Schema,
     prompt: string,
     model: string,
-    onChunk: (chunk: string) => void,
-    onEnd: () => void,
-    onError: (error: string) => void,
-    onComplete: (sql: string) => void
-  ) => () => void;
+    onStatus: (status: string) => void
+  ) => Promise<string>;
 };
 
 export type StoreApi = {

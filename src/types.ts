@@ -16,9 +16,19 @@ export type SchemaTable = {
 
 export type Schema = SchemaTable[];
 
+export type QueryColumn = {
+  __id: string;
+  name: string;
+};
+
+export type QueryRow = {
+  __id: string;
+  row: Record<string, unknown>;
+};
+
 export type QueryResult = {
-  columns: string[];
-  rows: Record<string, unknown>[];
+  columns: QueryColumn[];
+  rows: QueryRow[];
 };
 
 export type AIMessage = {

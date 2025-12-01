@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@renderer/shadcn/ui/select';
 import { Textarea } from '@renderer/shadcn/ui/textarea';
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -20,57 +20,57 @@ type RightPanelProps = {
 };
 
 export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+
   const { isConnected } = useConnection();
   const { activeTab, activeTabId, updateTabState, appendMessage, updateLastMessage } = useTabs();
 
   const { chatPrompt, selectedModel, chatMessages } = activeTab;
 
-  const onAiGenerate = (): void => {
-    if (!chatPrompt.trim()) return;
+  const isButtonDisabled = !isConnected || !chatPrompt.trim() || isAiGenerating;
+
+  const onAiGenerate = async (): Promise<void> => {
+    if (!chatPrompt.trim() || isAiGenerating) return;
 
     if (!schema.length) {
       alert('Please connect to a database first to load schema.');
       return;
     }
 
-    const userMsg = chatPrompt;
     updateTabState(activeTabId, { chatPrompt: '' });
+    appendMessage(activeTabId, { role: 'user', content: chatPrompt });
+    appendMessage(activeTabId, { role: 'assistant', content: 'Generating query...' });
 
-    appendMessage(activeTabId, { role: 'user', content: userMsg });
-    appendMessage(activeTabId, { role: 'assistant', content: '' });
+    setIsAiGenerating(true);
 
-    let fullResponse = '';
+    try {
+      const handleStatus = (status: string) => {
+        updateLastMessage(activeTabId, { content: `**Status:** *${status}*` });
+      };
 
-    window.api.ai.streamQuery(
-      schema,
-      userMsg,
-      selectedModel,
-      (chunk) => {
-        fullResponse += chunk;
-        updateLastMessage(activeTabId, {
-          content: `Generating SQL:\n\`\`\`json\n${fullResponse}\n\`\`\``,
-        });
-      },
-      () => {
-        updateLastMessage(activeTabId, {
-          content: 'Finished streaming. Validating and parsing result...',
-        });
-      },
-      (error) => {
-        updateLastMessage(activeTabId, {
-          role: 'assistant',
-          content: `⚠️ Stream/Parsing Error: ${error}`,
-        });
-      },
-      (finalSql) => {
-        updateLastMessage(activeTabId, {
-          role: 'assistant',
-          content: `Here is the generated query:\n\`\`\`sql\n${finalSql}\n\`\`\``,
-        });
+      const sqlResult = await window.api.ai.generateQuery(
+        schema,
+        chatPrompt,
+        selectedModel,
+        handleStatus
+      );
 
-        updateTabState(activeTabId, { editorSQL: finalSql });
-      }
-    );
+      updateLastMessage(activeTabId, {
+        role: 'assistant',
+        content: `Here is the generated query:\n\`\`\`sql\n${sqlResult}\n\`\`\``,
+      });
+
+      updateTabState(activeTabId, { editorSQL: sqlResult });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      updateLastMessage(activeTabId, {
+        role: 'assistant',
+        content: `❌ **Error Generating Query:** ${errorMessage}`,
+      });
+    } finally {
+      setIsAiGenerating(false);
+    }
   };
 
   return (
@@ -147,27 +147,45 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
               }
             }}
             className="min-h-[80px] pr-12 resize-none text-sm"
+            disabled={isAiGenerating}
           />
           <Button
             size="icon"
             className="absolute bottom-2 right-2 h-8 w-8"
             onClick={onAiGenerate}
-            disabled={!isConnected || !chatPrompt.trim()}
+            disabled={isButtonDisabled}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
+            {isAiGenerating ? (
+              <svg
+                className="animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            )}
           </Button>
         </div>
       </div>

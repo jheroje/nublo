@@ -21,8 +21,11 @@ export function CenterTopPanel({ schema }: CenterTopPanelProps): React.JSX.Eleme
     updateTabState(activeTabId, { queryError: '' });
 
     try {
-      const res = await window.api.db.runQuery(activeConnection.connectionString, editorSQL);
-      updateTabState(activeTabId, { queryResult: res });
+      const queryResult = await window.api.db.runQuery(
+        activeConnection.connectionString,
+        editorSQL
+      );
+      updateTabState(activeTabId, { queryResult });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
 

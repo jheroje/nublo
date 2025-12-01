@@ -31,23 +31,26 @@ export function CenterBottomPanel(): React.JSX.Element {
                 <TableHeader className="bg-muted sticky top-0 z-10">
                   <TableRow>
                     {queryResult.columns.map((col) => (
-                      <TableHead key={col} className="font-medium text-xs text-muted-foreground">
-                        {col}
+                      <TableHead
+                        key={col.__id}
+                        className="font-medium text-xs text-muted-foreground"
+                      >
+                        {col.name}
                       </TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {queryResult.rows.map((row, i) => (
-                    <TableRow key={i}>
+                  {queryResult.rows.map((row) => (
+                    <TableRow key={row.__id}>
                       {queryResult.columns.map((col) => (
                         <TableCell
-                          key={col}
+                          key={col.__id}
                           className="border-r last:border-r-0 max-w-[200px] truncate"
                         >
-                          {typeof row[col] === 'object'
-                            ? JSON.stringify(row[col])
-                            : String(row[col])}
+                          {typeof row.row[col.name] === 'object'
+                            ? JSON.stringify(row.row[col.name])
+                            : String(row.row[col.name])}
                         </TableCell>
                       ))}
                     </TableRow>

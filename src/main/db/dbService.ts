@@ -3,12 +3,14 @@ import { Client } from 'pg';
 import { QueryResult, Schema, SchemaTable } from 'src/types';
 
 export function setupDBService(): void {
-  ipcMain.handle('db:testConnection', async (_, connString: string): Promise<void> => {
-    const client = new Client({ connectionString: connString });
+  ipcMain.handle('db:testConnection', async (_, connectionString: string): Promise<void> => {
+    const client = new Client({ connectionString });
 
     try {
       await client.connect();
+
       await client.query('SELECT NOW()');
+
       await client.end();
       return;
     } catch (error) {
@@ -18,8 +20,8 @@ export function setupDBService(): void {
     }
   });
 
-  ipcMain.handle('db:getSchema', async (_, connString: string): Promise<Schema> => {
-    const client = new Client({ connectionString: connString });
+  ipcMain.handle('db:getSchema', async (_, connectionString: string): Promise<Schema> => {
+    const client = new Client({ connectionString });
 
     await client.connect();
 
@@ -53,15 +55,18 @@ export function setupDBService(): void {
 
   ipcMain.handle(
     'db:runQuery',
-    async (_, connString: string, sql: string): Promise<QueryResult> => {
-      const client = new Client({ connectionString: connString });
+    async (_, connectionString: string, sql: string): Promise<QueryResult> => {
+      const client = new Client({ connectionString });
 
       await client.connect();
+
       const res = await client.query(sql);
+
       await client.end();
+
       return {
-        columns: res.fields.map((f) => f.name),
-        rows: res.rows,
+        columns: res.fields.map(({ name }, i) => ({ __id: `col-${i}`, name })),
+        rows: res.rows.map((row, i) => ({ __id: `row-${i}`, row })),
       };
     }
   );
