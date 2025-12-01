@@ -49,6 +49,7 @@ export function setupAIService(): void {
           mode: 'json',
           system: systemPrompt,
           prompt: prompt,
+          maxRetries: 0,
         });
 
         event.sender.send('ai:status', 'Query generated successfully. Formatting...');
