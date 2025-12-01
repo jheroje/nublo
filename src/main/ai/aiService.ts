@@ -19,8 +19,6 @@ export function setupAIService(): void {
     async (event, schema: Schema, prompt: string, model: string) => {
       event.sender.send('ai:status', 'Generating SQL query...');
 
-      let rawQueryOutput = '';
-
       try {
         const schemaString = JSON.stringify(schema, null, 2);
 
@@ -55,9 +53,9 @@ export function setupAIService(): void {
 
         event.sender.send('ai:status', 'Query generated successfully. Formatting...');
 
-        rawQueryOutput = object.query;
-
-        const finalSql = format(rawQueryOutput, { language: 'postgresql' });
+        const finalSql = format(object.query, {
+          language: 'postgresql',
+        });
 
         event.sender.send('ai:status', 'Complete.');
 
@@ -68,7 +66,7 @@ export function setupAIService(): void {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error during AI processing.';
 
-        return { success: false, error: errorMessage, rawOutput: rawQueryOutput };
+        return { success: false, error: errorMessage };
       }
     }
   );

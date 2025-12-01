@@ -66,7 +66,7 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
 
       updateLastMessage(activeTabId, {
         role: 'assistant',
-        content: `❌ **Error Generating Query:** ${errorMessage}`,
+        content: `**Error Generating Query:** ${errorMessage}`,
       });
     } finally {
       setIsAiGenerating(false);
