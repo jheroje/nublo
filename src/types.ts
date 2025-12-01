@@ -17,13 +17,13 @@ export type SchemaTable = {
 export type Schema = SchemaTable[];
 
 export type QueryColumn = {
-  __id: string;
+  __columnId: string;
   name: string;
 };
 
 export type QueryRow = {
-  __id: string;
-  row: Record<string, unknown>;
+  __rowId: string;
+  values: unknown[];
 };
 
 export type QueryResult = {

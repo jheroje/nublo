@@ -60,13 +60,16 @@ export function setupDBService(): void {
 
       await client.connect();
 
-      const res = await client.query(sql);
+      const res = await client.query({ text: sql, rowMode: 'array' });
 
       await client.end();
 
       return {
-        columns: res.fields.map(({ name }, i) => ({ __id: `col-${i}`, name })),
-        rows: res.rows.map((row, i) => ({ __id: `row-${i}`, row })),
+        columns: res.fields.map(({ name }, i) => ({ __columnId: `col-${i}`, name })),
+        rows: res.rows.map((row, rowIndex) => ({
+          __rowId: `row-${rowIndex}`,
+          values: res.fields.map((_, colIndex) => row[colIndex]),
+        })),
       };
     }
   );
