@@ -4,12 +4,12 @@ import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';
 import { Schema } from 'src/types';
 import { registerSQLAutocomplete } from './sql-autocomplete';
 
-interface EditorProps {
+type EditorProps = {
   value: string;
   onChange: (value: string | undefined) => void;
   onExecute: () => void;
   schema: Schema;
-}
+};
 
 export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): React.JSX.Element => {
   const monacoRef = useRef<MonacoEditorHandle | null>(null);

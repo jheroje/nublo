@@ -249,10 +249,10 @@ function shouldSuggestColumnsWithAliases(context: string): boolean {
 /**
  * Represents a table alias mapping
  */
-interface TableAlias {
+type TableAlias = {
   tableName: string;
   alias: string;
-}
+};
 
 /**
  * Extracts table aliases from the entire query

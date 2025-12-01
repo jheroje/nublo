@@ -1,3 +1,4 @@
+import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import {
   Table,
   TableBody,
@@ -7,17 +8,12 @@ import {
   TableRow,
 } from '@renderer/shadcn/ui/table';
 import React from 'react';
-import { QueryResult } from 'src/types';
 
-interface CenterBottomPanelProps {
-  queryResult: QueryResult | null;
-  queryError: string;
-}
+export function CenterBottomPanel(): React.JSX.Element {
+  const { activeTab } = useTabs();
 
-export function CenterBottomPanel({
-  queryResult,
-  queryError,
-}: CenterBottomPanelProps): React.JSX.Element {
+  const { queryError, queryResult } = activeTab;
+
   return (
     <>
       <div className="h-10 border-b flex items-center px-4 bg-muted/20">

@@ -11,12 +11,12 @@ import { ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { Schema } from 'src/types';
 
-interface LeftPanelProps {
+type LeftPanelProps = {
   schema: Schema;
   setSchema: React.Dispatch<React.SetStateAction<Schema>>;
   connectionError: string;
   setConnectionError: React.Dispatch<React.SetStateAction<string>>;
-}
+};
 
 export function LeftPanel({
   schema,

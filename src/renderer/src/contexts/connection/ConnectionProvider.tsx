@@ -1,10 +1,9 @@
 import React, { ReactNode, useState } from 'react';
-import { Connection } from 'src/types';
-import { ConnectionContext } from './ConnectionContext';
+import { Connection, ConnectionContext } from './ConnectionContext';
 
-interface ConnectionProviderProps {
+type ConnectionProviderProps = {
   children: ReactNode;
-}
+};
 
 export function ConnectionProvider({ children }: ConnectionProviderProps): React.JSX.Element {
   const [activeConnection, setActiveConnection] = useState<Connection | null>(null);

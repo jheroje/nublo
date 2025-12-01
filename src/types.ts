@@ -25,10 +25,3 @@ export type AIMessage = {
   role: 'user' | 'assistant';
   content: string;
 };
-
-export type Connection = {
-  id: string;
-  name: string;
-  connectionString: string;
-  color: string;
-};

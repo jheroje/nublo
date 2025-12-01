@@ -1,4 +1,4 @@
-import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import { Connection, useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Dialog,
@@ -12,11 +12,10 @@ import { Input } from '@renderer/shadcn/ui/input';
 import { Label } from '@renderer/shadcn/ui/label';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Connection } from 'src/types';
 
-interface SavedConnectionsProps {
+type SavedConnectionsProps = {
   onConnect: (connectionString: string) => void;
-}
+};
 
 const COLORS = [
   'bg-red-500',

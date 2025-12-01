@@ -1,38 +1,32 @@
 import { Editor } from '@renderer/components/editor/SQLEditor';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import React from 'react';
-import { QueryResult, Schema } from 'src/types';
+import { Schema } from 'src/types';
 
-interface CenterTopPanelProps {
+type CenterTopPanelProps = {
   schema: Schema;
-  currentSQL: string;
-  setCurrentSQL: React.Dispatch<React.SetStateAction<string>>;
-  setQueryError: React.Dispatch<React.SetStateAction<string>>;
-  setQueryResult: React.Dispatch<React.SetStateAction<QueryResult | null>>;
-}
+};
 
-export function CenterTopPanel({
-  schema,
-  currentSQL,
-  setCurrentSQL,
-  setQueryError,
-  setQueryResult,
-}: CenterTopPanelProps): React.JSX.Element {
+export function CenterTopPanel({ schema }: CenterTopPanelProps): React.JSX.Element {
   const { activeConnection, isConnected } = useConnection();
+  const { activeTab, activeTabId, updateTabState } = useTabs();
+
+  const { editorSQL } = activeTab;
 
   const onRunQuery = async (): Promise<void> => {
     if (!isConnected || !activeConnection) return;
 
-    setQueryError('');
+    updateTabState(activeTabId, { queryError: '' });
 
     try {
-      const res = await window.api.db.runQuery(activeConnection.connectionString, currentSQL);
-      setQueryResult(res);
+      const res = await window.api.db.runQuery(activeConnection.connectionString, editorSQL);
+      updateTabState(activeTabId, { queryResult: res });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
 
-      setQueryError(`Query failed: ${errorMessage}`);
+      updateTabState(activeTabId, { queryError: `Query failed: ${errorMessage}` });
     }
   };
 
@@ -46,8 +40,8 @@ export function CenterTopPanel({
       </div>
       <div className="flex-1">
         <Editor
-          value={currentSQL}
-          onChange={(val) => setCurrentSQL(val || '')}
+          value={editorSQL}
+          onChange={(val) => updateTabState(activeTabId, { editorSQL: val || '' })}
           onExecute={onRunQuery}
           schema={schema}
         />

@@ -1,4 +1,5 @@
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Select,
@@ -8,36 +9,35 @@ import {
   SelectValue,
 } from '@renderer/shadcn/ui/select';
 import { Textarea } from '@renderer/shadcn/ui/textarea';
-import React, { useState } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
-import { AIMessage, Schema } from 'src/types';
+import { Schema } from 'src/types';
 
-interface RightPanelProps {
+type RightPanelProps = {
   schema: Schema;
-  setCurrentSQL: React.Dispatch<React.SetStateAction<string>>;
-}
+};
 
-export function RightPanel({ schema, setCurrentSQL }: RightPanelProps): React.JSX.Element {
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [chatMessages, setChatMessages] = useState<AIMessage[]>([]);
-  const [selectedModel, setSelectedModel] = useState('google/gemini-2.0-flash-exp:free');
-
+export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
   const { isConnected } = useConnection();
+  const { activeTab, activeTabId, updateTabState, appendMessage, updateLastMessage } = useTabs();
+
+  const { chatPrompt, selectedModel, chatMessages } = activeTab;
 
   const onAiGenerate = (): void => {
-    if (!aiPrompt.trim()) return;
+    if (!chatPrompt.trim()) return;
 
     if (!schema.length) {
       alert('Please connect to a database first to load schema.');
       return;
     }
 
-    const userMsg = aiPrompt;
-    setChatMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
-    setAiPrompt('');
-    setChatMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+    const userMsg = chatPrompt;
+    updateTabState(activeTabId, { chatPrompt: '' });
+
+    appendMessage(activeTabId, { role: 'user', content: userMsg });
+    appendMessage(activeTabId, { role: 'assistant', content: '' });
 
     let fullResponse = '';
 
@@ -47,40 +47,28 @@ export function RightPanel({ schema, setCurrentSQL }: RightPanelProps): React.JS
       selectedModel,
       (chunk) => {
         fullResponse += chunk;
-        setChatMessages((prev) => {
-          const newMsgs = [...prev];
-          const lastMsg = newMsgs[newMsgs.length - 1];
-          if (lastMsg.role === 'assistant') {
-            lastMsg.content = `Generating SQL:\n\`\`\`json\n${fullResponse}\n\`\`\``;
-          }
-          return newMsgs;
+        updateLastMessage(activeTabId, {
+          content: `Generating SQL:\n\`\`\`json\n${fullResponse}\n\`\`\``,
         });
       },
       () => {
-        setChatMessages((prev) => {
-          const newMsgs = [...prev];
-          const lastMsg = newMsgs[newMsgs.length - 1];
-          if (lastMsg.role === 'assistant') {
-            lastMsg.content = 'Finished streaming. Validating and parsing result...';
-          }
-          return newMsgs;
+        updateLastMessage(activeTabId, {
+          content: 'Finished streaming. Validating and parsing result...',
         });
       },
       (error) => {
-        setChatMessages((prev) => [
-          ...prev.slice(0, -1),
-          { role: 'assistant', content: `⚠️ Stream/Parsing Error: ${error}` },
-        ]);
+        updateLastMessage(activeTabId, {
+          role: 'assistant',
+          content: `⚠️ Stream/Parsing Error: ${error}`,
+        });
       },
       (finalSql) => {
-        setChatMessages((prev) => {
-          const newMsgs = [...prev];
-          const lastMsg = newMsgs[newMsgs.length - 1];
-          lastMsg.content = `Here is the generated query:\n\`\`\`sql\n${finalSql}\n\`\`\``;
-          return newMsgs;
+        updateLastMessage(activeTabId, {
+          role: 'assistant',
+          content: `Here is the generated query:\n\`\`\`sql\n${finalSql}\n\`\`\``,
         });
 
-        setCurrentSQL(finalSql);
+        updateTabState(activeTabId, { editorSQL: finalSql });
       }
     );
   };
@@ -89,7 +77,10 @@ export function RightPanel({ schema, setCurrentSQL }: RightPanelProps): React.JS
     <>
       <div className="h-10 border-b flex items-center justify-between px-4 bg-muted/20">
         <span className="font-medium text-xs text-muted-foreground">AI ASSISTANT</span>
-        <Select value={selectedModel} onValueChange={setSelectedModel}>
+        <Select
+          value={selectedModel}
+          onValueChange={(model) => updateTabState(activeTabId, { selectedModel: model })}
+        >
           <SelectTrigger size="sm" className="w-fit text-xs">
             <SelectValue placeholder="Select a model..." />
           </SelectTrigger>
@@ -147,8 +138,8 @@ export function RightPanel({ schema, setCurrentSQL }: RightPanelProps): React.JS
         <div className="relative">
           <Textarea
             placeholder="Ask AI to generate SQL"
-            value={aiPrompt}
-            onChange={(e) => setAiPrompt(e.target.value)}
+            value={chatPrompt}
+            onChange={(e) => updateTabState(activeTabId, { chatPrompt: e.target.value })}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -161,7 +152,7 @@ export function RightPanel({ schema, setCurrentSQL }: RightPanelProps): React.JS
             size="icon"
             className="absolute bottom-2 right-2 h-8 w-8"
             onClick={onAiGenerate}
-            disabled={!isConnected || !aiPrompt.trim()}
+            disabled={!isConnected || !chatPrompt.trim()}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
