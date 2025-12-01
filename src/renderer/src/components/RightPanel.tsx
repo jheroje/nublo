@@ -1,3 +1,4 @@
+import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Select,
@@ -7,36 +8,88 @@ import {
   SelectValue,
 } from '@renderer/shadcn/ui/select';
 import { Textarea } from '@renderer/shadcn/ui/textarea';
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
-import { AIMessage } from '../../../types';
+import { AIMessage, Schema } from 'src/types';
 
 interface RightPanelProps {
-  chatMessages: AIMessage[];
-  aiPrompt: string;
-  setAiPrompt: (value: string) => void;
-  isConnected: boolean;
-  onAiGenerate: () => void;
-  selectedModel: string;
-  onModelChange: (model: string) => void;
+  schema: Schema;
+  setCurrentSQL: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export function RightPanel({
-  chatMessages,
-  aiPrompt,
-  setAiPrompt,
-  isConnected,
-  onAiGenerate,
-  selectedModel,
-  onModelChange,
-}: RightPanelProps): React.JSX.Element {
+export function RightPanel({ schema, setCurrentSQL }: RightPanelProps): React.JSX.Element {
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [chatMessages, setChatMessages] = useState<AIMessage[]>([]);
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.0-flash-exp:free');
+
+  const { isConnected } = useConnection();
+
+  const onAiGenerate = (): void => {
+    if (!aiPrompt.trim()) return;
+
+    if (!schema.length) {
+      alert('Please connect to a database first to load schema.');
+      return;
+    }
+
+    const userMsg = aiPrompt;
+    setChatMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
+    setAiPrompt('');
+    setChatMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+
+    let fullResponse = '';
+
+    window.api.ai.streamQuery(
+      schema,
+      userMsg,
+      selectedModel,
+      (chunk) => {
+        fullResponse += chunk;
+        setChatMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastMsg = newMsgs[newMsgs.length - 1];
+          if (lastMsg.role === 'assistant') {
+            lastMsg.content = `Generating SQL:\n\`\`\`json\n${fullResponse}\n\`\`\``;
+          }
+          return newMsgs;
+        });
+      },
+      () => {
+        setChatMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastMsg = newMsgs[newMsgs.length - 1];
+          if (lastMsg.role === 'assistant') {
+            lastMsg.content = 'Finished streaming. Validating and parsing result...';
+          }
+          return newMsgs;
+        });
+      },
+      (error) => {
+        setChatMessages((prev) => [
+          ...prev.slice(0, -1),
+          { role: 'assistant', content: `⚠️ Stream/Parsing Error: ${error}` },
+        ]);
+      },
+      (finalSql) => {
+        setChatMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastMsg = newMsgs[newMsgs.length - 1];
+          lastMsg.content = `Here is the generated query:\n\`\`\`sql\n${finalSql}\n\`\`\``;
+          return newMsgs;
+        });
+
+        setCurrentSQL(finalSql);
+      }
+    );
+  };
+
   return (
     <>
       <div className="h-10 border-b flex items-center justify-between px-4 bg-muted/20">
         <span className="font-medium text-xs text-muted-foreground">AI ASSISTANT</span>
-        <Select value={selectedModel} onValueChange={onModelChange}>
+        <Select value={selectedModel} onValueChange={setSelectedModel}>
           <SelectTrigger size="sm" className="w-fit text-xs">
             <SelectValue placeholder="Select a model..." />
           </SelectTrigger>

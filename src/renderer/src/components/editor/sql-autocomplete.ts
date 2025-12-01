@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import { SchemaResult } from '../../../../types';
+import { Schema } from 'src/types';
 
 // SQL Keywords
 const SQL_KEYWORDS = [
@@ -349,17 +349,17 @@ function createTypeCompletions(range: monaco.IRange): monaco.languages.Completio
  * Creates Monaco completion items for table names
  */
 function createTableCompletions(
-  schema: SchemaResult,
+  schema: Schema,
   range: monaco.IRange
 ): monaco.languages.CompletionItem[] {
   return schema.map((table) => ({
-    label: table.table_name,
+    label: table.tableName,
     kind: monaco.languages.CompletionItemKind.Class,
-    insertText: table.table_name,
+    insertText: table.tableName,
     range,
     detail: `Table (${table.columns.length} columns)`,
     documentation: table.columns.map((col) => `${col.name}: ${col.type}`).join('\n'),
-    sortText: `0_${table.table_name}`, // Sort tables before keywords in table context
+    sortText: `0_${table.tableName}`, // Sort tables before keywords in table context
   }));
 }
 
@@ -368,11 +368,11 @@ function createTableCompletions(
  */
 function createAliasCompletions(
   tableAliases: TableAlias[],
-  schema: SchemaResult,
+  schema: Schema,
   range: monaco.IRange
 ): monaco.languages.CompletionItem[] {
   return tableAliases.map((aliasInfo) => {
-    const table = schema.find((t) => t.table_name.toLowerCase() === aliasInfo.tableName);
+    const table = schema.find((t) => t.tableName.toLowerCase() === aliasInfo.tableName);
 
     return {
       label: aliasInfo.alias,
@@ -381,7 +381,7 @@ function createAliasCompletions(
       range,
       detail: `Alias for ${aliasInfo.tableName}`,
       documentation: table
-        ? `Table: ${table.table_name}\n${table.columns.length} columns`
+        ? `Table: ${table.tableName}\n${table.columns.length} columns`
         : undefined,
       sortText: `0_${aliasInfo.alias}`,
     };
@@ -392,7 +392,7 @@ function createAliasCompletions(
  * Creates Monaco completion items for column names
  */
 function createColumnCompletions(
-  schema: SchemaResult,
+  schema: Schema,
   range: monaco.IRange,
   tableName?: string,
   tableAliases?: TableAlias[]
@@ -401,7 +401,7 @@ function createColumnCompletions(
 
   schema.forEach((table) => {
     // If a specific table is requested, only show columns from that table
-    if (tableName && table.table_name.toLowerCase() !== tableName.toLowerCase()) {
+    if (tableName && table.tableName.toLowerCase() !== tableName.toLowerCase()) {
       return;
     }
 
@@ -413,8 +413,8 @@ function createColumnCompletions(
           kind: monaco.languages.CompletionItemKind.Field,
           insertText: column.name,
           range,
-          detail: `${column.type}${column.is_nullable ? ' (nullable)' : ''}`,
-          documentation: `Column from table: ${table.table_name}`,
+          detail: `${column.type}${column.isNullable ? ' (nullable)' : ''}`,
+          documentation: `Column from table: ${table.tableName}`,
           sortText: `0_${column.name}`,
         });
       });
@@ -422,7 +422,7 @@ function createColumnCompletions(
       // In SELECT/ON/WHERE context, show table.column or alias.column
       // Find ALL aliases for this table (to support self-joins)
       const aliasesForTable =
-        tableAliases?.filter((a) => a.tableName === table.table_name.toLowerCase()) || [];
+        tableAliases?.filter((a) => a.tableName === table.tableName.toLowerCase()) || [];
 
       if (aliasesForTable.length > 0) {
         // Create column suggestions for each alias
@@ -436,8 +436,8 @@ function createColumnCompletions(
               kind: monaco.languages.CompletionItemKind.Field,
               insertText,
               range,
-              detail: `${column.type}${column.is_nullable ? ' (nullable)' : ''}`,
-              documentation: `Column from table: ${table.table_name} (alias: ${aliasInfo.alias})`,
+              detail: `${column.type}${column.isNullable ? ' (nullable)' : ''}`,
+              documentation: `Column from table: ${table.tableName} (alias: ${aliasInfo.alias})`,
               sortText: `0_${label}`,
             });
           });
@@ -445,16 +445,16 @@ function createColumnCompletions(
       } else {
         // No aliases, use table name
         table.columns.forEach((column) => {
-          const label = `${table.table_name}.${column.name}`;
-          const insertText = `${table.table_name}.${column.name}`;
+          const label = `${table.tableName}.${column.name}`;
+          const insertText = `${table.tableName}.${column.name}`;
 
           completions.push({
             label,
             kind: monaco.languages.CompletionItemKind.Field,
             insertText,
             range,
-            detail: `${column.type}${column.is_nullable ? ' (nullable)' : ''}`,
-            documentation: `Column from table: ${table.table_name}`,
+            detail: `${column.type}${column.isNullable ? ' (nullable)' : ''}`,
+            documentation: `Column from table: ${table.tableName}`,
             sortText: `0_${label}`,
           });
         });
@@ -468,7 +468,7 @@ function createColumnCompletions(
 /**
  * Registers SQL autocomplete provider with Monaco
  */
-export function registerSQLAutocomplete(schema: SchemaResult): monaco.IDisposable {
+export function registerSQLAutocomplete(schema: Schema): monaco.IDisposable {
   return monaco.languages.registerCompletionItemProvider('sql', {
     provideCompletionItems: (model, position) => {
       const word = model.getWordUntilPosition(position);

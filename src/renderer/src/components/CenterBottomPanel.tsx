@@ -7,7 +7,7 @@ import {
   TableRow,
 } from '@renderer/shadcn/ui/table';
 import React from 'react';
-import { QueryResult } from '../../../types';
+import { QueryResult } from 'src/types';
 
 interface CenterBottomPanelProps {
   queryResult: QueryResult | null;

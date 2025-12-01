@@ -1,10 +1,10 @@
 import { ipcMain } from 'electron';
 import { Client } from 'pg';
-import { DBConnectionStatus, QueryResult, SchemaResult, SchemaTable } from '../../types';
+import { DBConnectionStatus, QueryResult, Schema, SchemaTable } from 'src/types';
 
-export function setupDbService(): void {
+export function setupDBService(): void {
   ipcMain.handle(
-    'dbService:testConnection',
+    'db:testConnection',
     async (_, connString: string): Promise<DBConnectionStatus> => {
       const client = new Client({ connectionString: connString });
 
@@ -22,7 +22,7 @@ export function setupDbService(): void {
     }
   );
 
-  ipcMain.handle('dbService:getSchema', async (_, connString: string): Promise<SchemaResult> => {
+  ipcMain.handle('db:getSchema', async (_, connString: string): Promise<Schema> => {
     const client = new Client({ connectionString: connString });
 
     await client.connect();
@@ -41,14 +41,14 @@ export function setupDbService(): void {
     res.rows.forEach((row) => {
       if (!tables[row.table_name]) {
         tables[row.table_name] = {
-          table_name: row.table_name,
+          tableName: row.table_name,
           columns: [],
         };
       }
       tables[row.table_name].columns.push({
         name: row.column_name,
         type: row.data_type,
-        is_nullable: row.is_nullable === 'YES',
+        isNullable: row.is_nullable === 'YES',
       });
     });
 
@@ -56,7 +56,7 @@ export function setupDbService(): void {
   });
 
   ipcMain.handle(
-    'dbService:runQuery',
+    'db:runQuery',
     async (_, connString: string, sql: string): Promise<QueryResult> => {
       const client = new Client({ connectionString: connString });
 

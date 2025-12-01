@@ -1,23 +1,21 @@
 import { ipcMain } from 'electron';
 import OpenAI from 'openai';
 import { format } from 'sql-formatter';
-import { SchemaResult } from '../../types';
+import { Schema } from 'src/types';
 
-export function setupAiService(): void {
+export function setupAIService(): void {
   const openai = new OpenAI({
     baseURL: 'https://openrouter.ai/api/v1',
     apiKey: process.env.OPENROUTER_API_KEY,
   });
 
-  ipcMain.on(
-    'aiService:streamQuery',
-    async (event, schema: SchemaResult, prompt: string, model: string) => {
-      let fullResponse = '';
+  ipcMain.on('ai:streamQuery', async (event, schema: Schema, prompt: string, model: string) => {
+    let fullResponse = '';
 
-      try {
-        const schemaString = JSON.stringify(schema, null, 2);
+    try {
+      const schemaString = JSON.stringify(schema, null, 2);
 
-        const systemPrompt = `
+      const systemPrompt = `
         You are a PostgreSQL SQL expert. Generate a SQL query based on the user prompt and the provided database schema.
 
         Schema:
@@ -34,52 +32,51 @@ export function setupAiService(): void {
         { "query": "SELECT id, name FROM users WHERE age > 30;" }
         `;
 
-        const stream = await openai.chat.completions.create({
-          model: model || 'google/gemini-2.0-flash-exp:free',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt },
-          ],
-          stream: true,
-        });
+      const stream = await openai.chat.completions.create({
+        model: model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt },
+        ],
+        stream: true,
+      });
 
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content || '';
-          if (content) {
-            event.sender.send('ai:stream-chunk', content);
-            fullResponse += content;
-          }
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          event.sender.send('ai:stream-chunk', content);
+          fullResponse += content;
         }
-
-        event.sender.send('ai:stream-end');
-
-        let cleanJsonString = fullResponse.trim();
-
-        if (cleanJsonString.startsWith('```json')) {
-          cleanJsonString = cleanJsonString.substring('```json'.length).trim();
-        }
-        if (cleanJsonString.endsWith('```')) {
-          cleanJsonString = cleanJsonString
-            .substring(0, cleanJsonString.length - '```'.length)
-            .trim();
-        }
-
-        const parsedJson = JSON.parse(cleanJsonString);
-        let finalSql = parsedJson.query;
-
-        finalSql = format(finalSql, { language: 'postgresql' });
-
-        event.sender.send('ai:query-complete', finalSql);
-      } catch (error) {
-        event.sender.send(
-          'ai:stream-error',
-          JSON.stringify({
-            message:
-              error instanceof Error ? error.message : 'Unknown error during stream processing.',
-            response: fullResponse,
-          })
-        );
       }
+
+      event.sender.send('ai:stream-end');
+
+      let cleanJsonString = fullResponse.trim();
+
+      if (cleanJsonString.startsWith('```json')) {
+        cleanJsonString = cleanJsonString.substring('```json'.length).trim();
+      }
+      if (cleanJsonString.endsWith('```')) {
+        cleanJsonString = cleanJsonString
+          .substring(0, cleanJsonString.length - '```'.length)
+          .trim();
+      }
+
+      const parsedJson = JSON.parse(cleanJsonString);
+      let finalSql = parsedJson.query;
+
+      finalSql = format(finalSql, { language: 'postgresql' });
+
+      event.sender.send('ai:query-complete', finalSql);
+    } catch (error) {
+      event.sender.send(
+        'ai:stream-error',
+        JSON.stringify({
+          message:
+            error instanceof Error ? error.message : 'Unknown error during stream processing.',
+          response: fullResponse,
+        })
+      );
     }
-  );
+  });
 }

@@ -2,14 +2,14 @@ import { AIApi, Api, DBApi, StoreApi } from '@preload/types';
 import { contextBridge, ipcRenderer } from 'electron';
 
 const dbApi: DBApi = {
-  testConnection: (connString) => ipcRenderer.invoke('dbService:testConnection', connString),
-  getSchema: (connString) => ipcRenderer.invoke('dbService:getSchema', connString),
-  runQuery: (connString, sql) => ipcRenderer.invoke('dbService:runQuery', connString, sql),
+  testConnection: (connString) => ipcRenderer.invoke('db:testConnection', connString),
+  getSchema: (connString) => ipcRenderer.invoke('db:getSchema', connString),
+  runQuery: (connString, sql) => ipcRenderer.invoke('db:runQuery', connString, sql),
 };
 
 const aiApi: AIApi = {
   streamQuery: (schema, prompt, model, onChunk, onEnd, onError, onComplete) => {
-    ipcRenderer.send('aiService:streamQuery', schema, prompt, model);
+    ipcRenderer.send('ai:streamQuery', schema, prompt, model);
 
     const chunkListener = (_: Electron.IpcRendererEvent, chunk: string) => onChunk(chunk);
     const endListener = () => onEnd();

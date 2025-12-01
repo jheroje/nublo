@@ -1,3 +1,4 @@
+import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Dialog,
@@ -11,13 +12,7 @@ import { Input } from '@renderer/shadcn/ui/input';
 import { Label } from '@renderer/shadcn/ui/label';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-
-interface SavedConnection {
-  id: string;
-  name: string;
-  connectionString: string;
-  color: string;
-}
+import { Connection } from 'src/types';
 
 interface SavedConnectionsProps {
   onConnect: (connectionString: string) => void;
@@ -41,14 +36,27 @@ const COLORS = [
   'bg-fuchsia-500',
   'bg-pink-500',
   'bg-rose-500',
+  'bg-gray-500',
+  'bg-neutral-500',
+  'bg-stone-500',
+  'bg-slate-500',
+  'bg-zinc-500',
 ];
 
 export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JSX.Element {
-  const [connections, setConnections] = useState<SavedConnection[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [connectionString, setConnectionString] = useState('');
+  const [selectedColor, setSelectedColor] = useState(COLORS[0]);
+
+  const { activeConnection, setActiveConnection } = useConnection();
+
   useEffect(() => {
     const loadConnections = async () => {
       try {
-        const saved = await window.api.store.get<SavedConnection[]>('saved_connections');
+        const saved = await window.api.store.get<Connection[]>('saved_connections');
         if (saved) {
           setConnections(saved);
         }
@@ -59,19 +67,12 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
     loadConnections();
   }, []);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  const [name, setName] = useState('');
-  const [connectionString, setConnectionString] = useState('');
-  const [selectedColor, setSelectedColor] = useState(COLORS[0]);
-
-  const saveConnections = async (newConnections: SavedConnection[]) => {
+  const saveConnections = async (newConnections: Connection[]) => {
     setConnections(newConnections);
     await window.api.store.set('saved_connections', newConnections);
   };
 
-  const handleOpenDialog = (conn?: SavedConnection) => {
+  const handleOpenDialog = (conn?: Connection) => {
     if (conn) {
       setEditingId(conn.id);
       setName(conn.name);
@@ -94,15 +95,21 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
         c.id === editingId ? { ...c, name, connectionString, color: selectedColor } : c
       );
       saveConnections(newConnections);
+
+      if (activeConnection?.id === editingId) {
+        setActiveConnection({ ...activeConnection, name, connectionString, color: selectedColor });
+      }
     } else {
-      const newConnection: SavedConnection = {
+      const newConnection: Connection = {
         id: crypto.randomUUID(),
         name,
         connectionString,
         color: selectedColor,
       };
+
       saveConnections([...connections, newConnection]);
     }
+
     setIsDialogOpen(false);
   };
 
@@ -159,7 +166,7 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
                     <button
                       key={color}
                       className={`w-6 h-6 rounded-full ${color} ${
-                        selectedColor === color ? 'ring-2 ring-offset-2 ring-foreground' : ''
+                        selectedColor === color ? 'ring-2 ring-offset-2 ring-foreground bg-' : ''
                       }`}
                       onClick={() => setSelectedColor(color)}
                     />
@@ -182,7 +189,10 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
             <div
               key={conn.id}
               className="group flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted/50 cursor-pointer transition-colors"
-              onClick={() => onConnect(conn.connectionString)}
+              onClick={() => {
+                setActiveConnection(conn);
+                onConnect(conn.connectionString);
+              }}
             >
               <div className={`w-3 h-3 rounded-full ${conn.color}`} />
               <span className="text-xs font-medium truncate flex-1">{conn.name}</span>

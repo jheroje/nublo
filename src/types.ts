@@ -6,15 +6,15 @@ export type DBConnectionStatus = {
 export type SchemaColumn = {
   name: string;
   type: string;
-  is_nullable: boolean;
+  isNullable: boolean;
 };
 
 export type SchemaTable = {
-  table_name: string;
+  tableName: string;
   columns: SchemaColumn[];
 };
 
-export type SchemaResult = SchemaTable[];
+export type Schema = SchemaTable[];
 
 export type QueryResult = {
   columns: string[];
@@ -24,4 +24,11 @@ export type QueryResult = {
 export type AIMessage = {
   role: 'user' | 'assistant';
   content: string;
+};
+
+export type Connection = {
+  id: string;
+  name: string;
+  connectionString: string;
+  color: string;
 };

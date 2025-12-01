@@ -1,14 +1,14 @@
 import { monaco } from '@renderer/components/editor/monaco-config';
 import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';
-import { SchemaResult } from '../../../../types';
+import { Schema } from 'src/types';
 import { registerSQLAutocomplete } from './sql-autocomplete';
 
 interface EditorProps {
   value: string;
   onChange: (value: string | undefined) => void;
   onExecute: () => void;
-  schema: SchemaResult;
+  schema: Schema;
 }
 
 export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): React.JSX.Element => {

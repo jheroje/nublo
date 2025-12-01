@@ -1,4 +1,5 @@
 import { SavedConnections } from '@renderer/components/SavedConnections';
+import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Collapsible,
@@ -8,26 +9,44 @@ import {
 import { Input } from '@renderer/shadcn/ui/input';
 import { ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
-import { SchemaResult } from '../../../types';
+import { Schema } from 'src/types';
 
 interface LeftPanelProps {
-  connectionString: string;
-  setConnectionString: (value: string) => void;
-  isConnected: boolean;
+  schema: Schema;
+  setSchema: React.Dispatch<React.SetStateAction<Schema>>;
   connectionError: string;
-  schema: SchemaResult;
-  onConnect: (connectionString?: string) => void;
+  setConnectionError: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function LeftPanel({
-  connectionString,
-  setConnectionString,
-  isConnected,
-  connectionError,
   schema,
-  onConnect,
+  setSchema,
+  connectionError,
+  setConnectionError,
 }: LeftPanelProps): React.JSX.Element {
   const [openTables, setOpenTables] = useState<Set<string>>(new Set());
+
+  const { activeConnection, setActiveConnection, isConnected, setIsConnected } = useConnection();
+
+  const onConnect = async (connectionString: string): Promise<void> => {
+    if (!connectionString) return;
+
+    setConnectionError('');
+
+    try {
+      const status = await window.api.db.testConnection(connectionString);
+
+      if (status.success) {
+        setIsConnected(true);
+        const schemaRes = await window.api.db.getSchema(connectionString);
+        setSchema(schemaRes);
+      } else {
+        setConnectionError(status.message);
+      }
+    } catch (error) {
+      setConnectionError(error instanceof Error ? error.message : 'Unknown error');
+    }
+  };
 
   const toggleTable = (tableName: string) => {
     setOpenTables((prev) => {
@@ -45,7 +64,7 @@ export function LeftPanel({
     <>
       <h2 className="text-lg font-bold mb-4">Nublo</h2>
       <div className="space-y-4">
-        <SavedConnections onConnect={(connStr) => onConnect(connStr)} />
+        <SavedConnections onConnect={onConnect} />
 
         <div>
           <label className="text-xs font-medium text-muted-foreground uppercase">
@@ -53,13 +72,24 @@ export function LeftPanel({
           </label>
           <Input
             placeholder="postgresql://..."
-            value={connectionString}
-            onChange={(e) => setConnectionString(e.target.value)}
+            value={activeConnection?.connectionString ?? ''}
+            onChange={(e) =>
+              setActiveConnection((prev) =>
+                prev
+                  ? { ...prev, connectionString: e.target.value }
+                  : {
+                      id: '',
+                      name: 'Custom Connection',
+                      color: 'bg-gray-500',
+                      connectionString: e.target.value,
+                    }
+              )
+            }
             className="mt-1 h-8 text-xs"
           />
         </div>
         <Button
-          onClick={() => onConnect(connectionString)}
+          onClick={() => onConnect(activeConnection?.connectionString ?? '')}
           className="w-full h-8 text-xs"
           disabled={isConnected}
         >
@@ -74,18 +104,18 @@ export function LeftPanel({
             <div className="h-[calc(100vh-350px)] overflow-y-auto text-xs space-y-1">
               {schema.map((table) => (
                 <Collapsible
-                  key={table.table_name}
-                  open={openTables.has(table.table_name)}
-                  onOpenChange={() => toggleTable(table.table_name)}
+                  key={table.tableName}
+                  open={openTables.has(table.tableName)}
+                  onOpenChange={() => toggleTable(table.tableName)}
                 >
                   <CollapsibleTrigger className="w-full flex items-center gap-1 hover:bg-muted/50 rounded px-2 py-1.5 transition-colors">
                     <ChevronRight
                       className={`h-3 w-3 transition-transform ${
-                        openTables.has(table.table_name) ? 'rotate-90' : ''
+                        openTables.has(table.tableName) ? 'rotate-90' : ''
                       }`}
                     />
                     <span className="text-blue-500">#</span>
-                    <span className="font-medium text-foreground">{table.table_name}</span>
+                    <span className="font-medium text-foreground">{table.tableName}</span>
                     <span className="ml-auto text-muted-foreground text-[10px]">
                       {table.columns.length}
                     </span>

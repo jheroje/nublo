@@ -1,8 +1,8 @@
 import 'dotenv/config';
 
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
-import { setupAiService } from '@main/ai/aiService';
-import { setupDbService } from '@main/db/dbService';
+import { setupAIService } from '@main/ai/aiService';
+import { setupDBService } from '@main/db/dbService';
 import { setupStoreService } from '@main/store/storeService';
 import { app, BrowserWindow, shell } from 'electron';
 import { dirname, join } from 'path';
@@ -55,8 +55,8 @@ app.whenReady().then(() => {
   });
 
   setupStoreService();
-  setupDbService();
-  setupAiService();
+  setupDBService();
+  setupAIService();
 
   createWindow();
 
