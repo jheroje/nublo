@@ -69,6 +69,8 @@ export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): Rea
           showKeywords: true,
           showSnippets: true,
         },
+        lineNumbersMinChars: 3,
+        folding: false,
       }}
     />
   );

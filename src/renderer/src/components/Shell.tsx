@@ -24,14 +24,14 @@ export default function Shell(): React.JSX.Element {
   return (
     <div className="h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col">
       {/* Draggable title bar region for window dragging */}
-      <div className="h-8 w-full bg-muted/10 app-drag flex justify-center items-center">
+      <div className="h-8 w-full bg-muted/30 app-drag flex justify-center items-center">
         <p className="text-xs font-bold">Nublo</p>
       </div>
 
       {/* Core app */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
         {/* Left Panel: Connections & Schema */}
-        <ResizablePanel defaultSize={20} minSize={20} maxSize={40} className="p-4 bg-muted/10">
+        <ResizablePanel defaultSize={15} className="p-4 bg-muted/30 min-w-[300px]">
           <LeftPanel
             schema={schema}
             setSchema={setSchema}
@@ -40,22 +40,22 @@ export default function Shell(): React.JSX.Element {
           />
         </ResizablePanel>
 
-        <ResizableHandle />
+        <ResizableHandle className="bg-muted/30" />
 
         {/* Center & Right Panels (Tabbed) */}
-        <ResizablePanel defaultSize={80}>
+        <ResizablePanel defaultSize={85}>
           <Tabs
             value={activeTabId}
             onValueChange={setActiveTab}
             className="h-full flex flex-col w-full gap-0"
           >
-            <div className="bg-muted/10 flex items-center justify-start">
-              <TabsList className="h-9 bg-transparent p-0 justify-start overflow-x-auto no-scrollbar rounded-b-none">
+            <div className="bg-muted/30 flex items-center justify-start">
+              <TabsList className="h-9 bg-transparent p-0 justify-start overflow-x-auto no-scrollbar rounded-none">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="h-9 relative group min-w-[120px] border-none rounded-b-none"
+                    className="h-9 relative group min-w-[120px] border-none rounded-b-none dark:data-[state=active]:bg-background bg-muted/30"
                   >
                     <span className="mr-2 truncate max-w-[100px]">{tab.title}</span>
                     {tabs.length > 1 && (
@@ -89,7 +89,7 @@ export default function Shell(): React.JSX.Element {
             >
               <ResizablePanelGroup direction="horizontal" className="h-full flex-1">
                 {/* Center Panel: Editor & Results */}
-                <ResizablePanel defaultSize={65}>
+                <ResizablePanel defaultSize={75}>
                   <ResizablePanelGroup direction="vertical">
                     {/* Top: Editor */}
                     <ResizablePanel defaultSize={60} className="flex flex-col">
@@ -108,7 +108,7 @@ export default function Shell(): React.JSX.Element {
                 <ResizableHandle />
 
                 {/* Right Panel: AI Chat */}
-                <ResizablePanel defaultSize={35} minSize={35} className="bg-muted/5 flex flex-col">
+                <ResizablePanel defaultSize={25} className="flex flex-col min-w-[320px]">
                   <RightPanel schema={schema} />
                 </ResizablePanel>
               </ResizablePanelGroup>

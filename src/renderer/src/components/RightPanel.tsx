@@ -75,7 +75,7 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
 
   return (
     <>
-      <div className="h-10 flex items-center justify-between px-4 bg-muted/20">
+      <div className="h-10 flex items-center justify-between px-4 bg-background">
         <span className="font-medium text-xs text-muted-foreground">AI ASSISTANT</span>
         <Select
           value={selectedModel}

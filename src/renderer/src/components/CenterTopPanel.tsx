@@ -35,7 +35,7 @@ export function CenterTopPanel({ schema }: CenterTopPanelProps): React.JSX.Eleme
 
   return (
     <>
-      <div className="h-10 flex justify-between items-center px-4 bg-muted/20">
+      <div className="h-10 flex justify-between items-center px-4 bg-background">
         <span className="font-medium text-xs text-muted-foreground">QUERY EDITOR</span>
         <Button size="sm" className="h-7 text-xs" onClick={onRunQuery} disabled={!isConnected}>
           Run Query (Cmd+Enter)

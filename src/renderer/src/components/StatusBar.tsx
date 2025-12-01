@@ -33,7 +33,7 @@ export function StatusBar(): React.JSX.Element {
 
   if (!activeConnection) {
     return (
-      <div className="h-6 w-full border-t flex items-center p-3 text-sm bg-muted/20">
+      <div className="h-6 w-full border-t flex items-center p-3 text-sm bg-muted/30">
         <Unplug className="h-3.5 w-3.5 mr-2 text-muted-foreground/50" />
         <span className="font-medium text-muted-foreground/50">Not connected</span>
       </div>

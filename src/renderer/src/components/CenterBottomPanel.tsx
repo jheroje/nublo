@@ -16,7 +16,7 @@ export function CenterBottomPanel(): React.JSX.Element {
 
   return (
     <>
-      <div className="h-10 border-b flex items-center px-4 bg-muted/20">
+      <div className="h-10 flex items-center px-4 bg-background">
         <span className="font-medium text-xs text-muted-foreground">QUERY RESULTS</span>
       </div>
       <div className="flex-1 overflow-hidden">
