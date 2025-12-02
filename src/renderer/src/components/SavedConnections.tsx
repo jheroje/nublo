@@ -1,4 +1,9 @@
-import { Connection, useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import {
+  Connection,
+  ConnectionColor,
+  ConnectionColors,
+  useConnection,
+} from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Dialog,
@@ -17,38 +22,13 @@ type SavedConnectionsProps = {
   onConnect: (connectionString: string) => void;
 };
 
-const COLORS = [
-  'bg-red-500',
-  'bg-orange-500',
-  'bg-amber-500',
-  'bg-yellow-500',
-  'bg-lime-500',
-  'bg-green-500',
-  'bg-emerald-500',
-  'bg-teal-500',
-  'bg-cyan-500',
-  'bg-sky-500',
-  'bg-blue-500',
-  'bg-indigo-500',
-  'bg-violet-500',
-  'bg-purple-500',
-  'bg-fuchsia-500',
-  'bg-pink-500',
-  'bg-rose-500',
-  'bg-gray-500',
-  'bg-neutral-500',
-  'bg-stone-500',
-  'bg-slate-500',
-  'bg-zinc-500',
-];
-
 export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JSX.Element {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [connectionString, setConnectionString] = useState('');
-  const [selectedColor, setSelectedColor] = useState(COLORS[0]);
+  const [selectedColor, setSelectedColor] = useState<ConnectionColor>(ConnectionColors[0]);
 
   const { activeConnection, setActiveConnection } = useConnection();
 
@@ -77,7 +57,7 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
       setEditingId(null);
       setName('');
       setConnectionString('');
-      setSelectedColor(COLORS[0]);
+      setSelectedColor(ConnectionColors[0]);
     }
     setIsDialogOpen(true);
   };
@@ -115,6 +95,8 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
       saveConnections(newConnections);
     }
   };
+
+  console.log(ConnectionColors);
 
   return (
     <div className="mb-6">
@@ -157,11 +139,11 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
               <div className="grid gap-2">
                 <Label>Color</Label>
                 <div className="flex flex-wrap gap-2">
-                  {COLORS.map((color) => (
+                  {ConnectionColors.map((color) => (
                     <button
                       key={color}
-                      className={`w-6 h-6 rounded-full ${color} ${
-                        selectedColor === color ? 'ring-2 ring-offset-2 ring-foreground bg-' : ''
+                      className={`w-6 h-6 rounded-full bg-${color} ${
+                        selectedColor === color ? 'ring-2 ring-offset-2 ring-foreground' : ''
                       }`}
                       onClick={() => setSelectedColor(color)}
                     />
@@ -189,7 +171,7 @@ export function SavedConnections({ onConnect }: SavedConnectionsProps): React.JS
                 onConnect(conn.connectionString);
               }}
             >
-              <div className={`w-3 h-3 rounded-full ${conn.color}`} />
+              <div className={`w-3 h-3 rounded-full bg-${conn.color}`} />
               <span className="text-xs font-medium truncate flex-1">{conn.name}</span>
               <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button

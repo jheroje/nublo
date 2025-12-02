@@ -81,17 +81,13 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
           value={selectedModel}
           onValueChange={(model) => updateTabState(activeTabId, { selectedModel: model })}
         >
-          <SelectTrigger size="sm" className="w-fit text-xs">
+          <SelectTrigger size="sm" className="text-xs">
             <SelectValue placeholder="Select a model..." />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B (Free)</SelectItem>
-            <SelectItem value="google/gemini-2.0-flash-exp:free">
-              Gemini 2.0 Flash (Free)
-            </SelectItem>
-            <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">
-              Llama 3.2 3B (Free)
-            </SelectItem>
+          <SelectContent className="text-xs">
+            <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B</SelectItem>
+            <SelectItem value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</SelectItem>
+            <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -103,7 +99,7 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
             className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
           >
             <div
-              className={`max-w-[90%] rounded-lg p-3 text-sm ${
+              className={`max-w-[90%] rounded-lg p-3 text-xs ${
                 msg.role === 'user'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-foreground'
@@ -146,12 +142,12 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
                 onAiGenerate();
               }
             }}
-            className="min-h-[80px] pr-12 resize-none text-sm"
+            className="min-h-[40px] pr-12 resize-none text-xs"
             disabled={isAiGenerating}
           />
           <Button
             size="icon"
-            className="absolute bottom-2 right-2 h-8 w-8"
+            className="absolute bottom-2 right-2 h-6 w-6"
             onClick={onAiGenerate}
             disabled={isButtonDisabled}
           >

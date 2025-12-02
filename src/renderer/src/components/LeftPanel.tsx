@@ -5,7 +5,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@renderer/shadcn/ui/collapsible';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Table } from 'lucide-react';
 import React, { useState } from 'react';
 import { Schema } from 'src/types';
 
@@ -24,7 +24,7 @@ export function LeftPanel({
 }: LeftPanelProps): React.JSX.Element {
   const [openTables, setOpenTables] = useState<Set<string>>(new Set());
 
-  const { isConnected, setIsConnected } = useConnection();
+  const { isConnected, setIsConnected, activeConnection } = useConnection();
 
   const onConnect = async (connectionString: string): Promise<void> => {
     if (!connectionString) return;
@@ -65,7 +65,7 @@ export function LeftPanel({
 
         {connectionError && <p className="text-red-500 text-xs">{connectionError}</p>}
 
-        {isConnected && (
+        {isConnected && activeConnection && (
           <div className="mt-6">
             <h3 className="font-semibold mb-2 text-xs uppercase text-muted-foreground">Schema</h3>
             <div className="h-[calc(100vh-350px)] overflow-y-auto text-xs space-y-1">
@@ -81,9 +81,9 @@ export function LeftPanel({
                         openTables.has(table.tableName) ? 'rotate-90' : ''
                       }`}
                     />
-                    <span className="text-blue-500">#</span>
+                    <Table className={`h-3 w-3 text-${activeConnection.color}`} />
                     <span className="font-medium text-foreground">{table.tableName}</span>
-                    <span className="ml-auto text-muted-foreground text-[10px]">
+                    <span className="ml-auto text-muted-foreground text-xs">
                       {table.columns.length}
                     </span>
                   </CollapsibleTrigger>
@@ -95,7 +95,7 @@ export function LeftPanel({
                           className="text-muted-foreground truncate pl-3 py-0.5"
                           title={`${col.name} (${col.type})`}
                         >
-                          {col.name} <span className="opacity-50 text-[10px]">{col.type}</span>
+                          {col.name} <span className="opacity-50 text-xs">{col.type}</span>
                         </li>
                       ))}
                     </ul>

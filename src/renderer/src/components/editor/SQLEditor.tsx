@@ -50,14 +50,14 @@ export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): Rea
       onChange={onChange}
       options={{
         minimap: { enabled: false },
-        fontSize: 13,
+        fontSize: 12,
         padding: { top: 16 },
         contextmenu: false,
         selectOnLineNumbers: true,
         automaticLayout: true,
         scrollbar: {
-          verticalScrollbarSize: 10,
-          horizontalScrollbarSize: 10,
+          verticalScrollbarSize: 6,
+          horizontalScrollbarSize: 6,
         },
         suggestOnTriggerCharacters: true,
         quickSuggestions: {

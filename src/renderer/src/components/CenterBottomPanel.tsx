@@ -46,7 +46,7 @@ export function CenterBottomPanel(): React.JSX.Element {
                       {queryResult.columns.map(({ __columnId }, i) => (
                         <TableCell
                           key={__columnId}
-                          className="border-r last:border-r-0 max-w-[200px] truncate"
+                          className="border-r last:border-r-0 max-w-[200px] truncate text-xs"
                         >
                           {typeof values[i] === 'object'
                             ? JSON.stringify(values[i])

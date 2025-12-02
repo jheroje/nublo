@@ -55,7 +55,7 @@ export default function Shell(): React.JSX.Element {
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="h-9 relative group min-w-[120px] border-none rounded-b-none dark:data-[state=active]:bg-background bg-muted/30"
+                    className="h-9 relative group min-w-[120px] border-none rounded-b-none dark:data-[state=active]:bg-background bg-muted/30 text-xs"
                   >
                     <span className="mr-2 truncate max-w-[100px]">{tab.title}</span>
                     {tabs.length > 1 && (
@@ -108,7 +108,7 @@ export default function Shell(): React.JSX.Element {
                 <ResizableHandle />
 
                 {/* Right Panel: AI Chat */}
-                <ResizablePanel defaultSize={25} className="flex flex-col min-w-[320px]">
+                <ResizablePanel defaultSize={25} className="flex flex-col min-w-[280px]">
                   <RightPanel schema={schema} />
                 </ResizablePanel>
               </ResizablePanelGroup>
