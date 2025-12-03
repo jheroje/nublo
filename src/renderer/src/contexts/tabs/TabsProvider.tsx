@@ -86,7 +86,11 @@ function tabsReducer(state: TabsState, action: TabAction): TabsState {
   }
 }
 
-export function TabsProvider({ children }: { children: ReactNode }) {
+type TabsProviderProps = {
+  children: ReactNode;
+};
+
+export function TabsProvider({ children }: TabsProviderProps) {
   const firstTab = createTab(1);
   const [state, dispatch] = useReducer(tabsReducer, {
     tabs: [firstTab],
