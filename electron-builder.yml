@@ -21,6 +21,8 @@ nsis:
 mac:
   icon: icon.icon
   entitlementsInherit: build/entitlements.mac.plist
+  identity: null
+  sign: false
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
