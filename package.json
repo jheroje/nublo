@@ -1,7 +1,7 @@
 {
   "name": "nublo",
   "version": "1.0.0",
-  "description": "AI assisted DB tool",
+  "description": "DB tool with AI assistance",
   "type": "module",
   "main": "./out/main/index.js",
   "author": "jheroje",
