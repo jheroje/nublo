@@ -32,7 +32,7 @@ export function setupAIService(): void {
             1. Your entire response **MUST** be a single JSON object.
             2. The JSON object **MUST** contain only one key named "query".
             3. The value of the "query" key **MUST** be the raw PostgreSQL query string.
-            4. **CRITICAL:** DO NOT include any markdown formatting (like \`\`\`json or \`\`\`sql), explanations, or surrounding text. The response must start with '{' and end with '}'.
+            4. **CRITICAL:** DO NOT include any markdown formatting (like \`\`\`json or \`\`\`sql), explanations, or surrounding text. The response must be valid JSON, start with '{' and end with '}'.
 
           **IMPRECISION HANDLING (Prioritize Fuzzy Matching)**
             * **TEXT FIELDS (Strings):** For filtering on text columns (e.g., status, name, description), always assume imprecision. **MUST** use the case-insensitive pattern matching operator **\`ILIKE\`** instead of strict equality (\`=\`). Enclose the value with the wildcard character (\`%\`) on both sides for partial matching (e.g., \`status ILIKE '%complete%'\`). Only use \`=\` when the user explicitly requests an exact match.
@@ -46,7 +46,6 @@ export function setupAIService(): void {
         const { object } = await generateObject({
           model: openrouter(model),
           schema: SqlQuerySchema,
-          mode: 'json',
           system: systemPrompt,
           prompt: prompt,
           maxRetries: 0,
