@@ -1,8 +1,7 @@
-import { Plug, Unplug } from 'lucide-react';
-import React from 'react';
-
 import { ConnectionColor, useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { wcagContrast } from 'culori';
+import { Plug, Unplug } from 'lucide-react';
+import React from 'react';
 import colors from 'tailwindcss/colors';
 
 function getTailwindColor(colorClass: ConnectionColor): string | null {

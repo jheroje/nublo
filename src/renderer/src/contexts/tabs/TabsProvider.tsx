@@ -1,5 +1,5 @@
+import { AIMessage } from '@common/types';
 import { ReactNode, useReducer } from 'react';
-import { AIMessage } from 'src/types';
 import { Tab, TabsContext, TabsState } from './TabsContext';
 
 type TabAction =

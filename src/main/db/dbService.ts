@@ -1,6 +1,6 @@
+import { QueryResult, Schema, SchemaTable } from '@common/types';
 import { ipcMain } from 'electron';
 import { Client } from 'pg';
-import { QueryResult, Schema, SchemaTable } from 'src/types';
 
 export function setupDBService(): void {
   ipcMain.handle('db:testConnection', async (_, connectionString: string): Promise<void> => {

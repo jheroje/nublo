@@ -1,7 +1,9 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
-  "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*", "src/types.ts"],
+  "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*", "src/common/**/*"],
   "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
     "composite": true,
     "types": ["electron-vite/node"],
     "baseUrl": ".",
@@ -9,7 +11,8 @@
     "moduleResolution": "Bundler",
     "paths": {
       "@main/*": ["src/main/*"],
-      "@preload/*": ["src/preload/*"]
+      "@preload/*": ["src/preload/*"],
+      "@common/*": ["src/common/*"]
     }
   }
 }

@@ -1,7 +1,7 @@
 import Shell from '@renderer/components/Shell';
+import { ConnectionProvider } from '@renderer/contexts/connection/ConnectionProvider';
+import { TabsProvider } from '@renderer/contexts/tabs/TabsProvider';
 import React from 'react';
-import { ConnectionProvider } from './contexts/connection/ConnectionProvider';
-import { TabsProvider } from './contexts/tabs/TabsProvider';
 
 function App(): React.JSX.Element {
   return (

@@ -1,8 +1,8 @@
+import { Schema } from '@common/types';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { generateObject } from 'ai';
 import { ipcMain } from 'electron';
 import { format } from 'sql-formatter';
-import { Schema } from 'src/types';
 import { z } from 'zod';
 
 const SqlQuerySchema = z.object({

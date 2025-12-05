@@ -1,5 +1,5 @@
+import { Schema } from '@common/types';
 import * as monaco from 'monaco-editor';
-import { Schema } from 'src/types';
 
 // SQL Keywords
 const SQL_KEYWORDS = [

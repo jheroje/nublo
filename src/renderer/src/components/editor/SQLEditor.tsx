@@ -1,7 +1,7 @@
+import { Schema } from '@common/types';
 import { monaco } from '@renderer/components/editor/monaco-config';
 import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';
-import { Schema } from 'src/types';
 import { registerSQLAutocomplete } from './sql-autocomplete';
 
 type EditorProps = {

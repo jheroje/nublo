@@ -1,13 +1,17 @@
 import tailwind from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
-import { resolve } from 'path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   main: {
     resolve: {
       alias: {
-        '@main': resolve('src/main'),
+        '@main': resolve(__dirname, 'src/main'),
+        '@common': resolve(__dirname, 'src/common'),
       },
     },
     plugins: [externalizeDepsPlugin()],
@@ -15,7 +19,8 @@ export default defineConfig({
   preload: {
     resolve: {
       alias: {
-        '@preload': resolve('src/preload'),
+        '@preload': resolve(__dirname, 'src/preload'),
+        '@common': resolve(__dirname, 'src/common'),
       },
     },
     build: {
@@ -31,7 +36,8 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src'),
+        '@renderer': resolve(__dirname, 'src/renderer/src'),
+        '@common': resolve(__dirname, 'src/common'),
       },
     },
     plugins: [react(), tailwind()],

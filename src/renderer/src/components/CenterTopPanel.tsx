@@ -1,9 +1,9 @@
+import { Schema } from '@common/types';
 import { Editor } from '@renderer/components/editor/SQLEditor';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import React from 'react';
-import { Schema } from 'src/types';
 
 type CenterTopPanelProps = {
   schema: Schema;

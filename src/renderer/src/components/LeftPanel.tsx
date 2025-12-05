@@ -1,3 +1,4 @@
+import { Schema } from '@common/types';
 import { SavedConnections } from '@renderer/components/SavedConnections';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import {
@@ -7,7 +8,6 @@ import {
 } from '@renderer/shadcn/ui/collapsible';
 import { ChevronRight, Table } from 'lucide-react';
 import React, { useState } from 'react';
-import { Schema } from 'src/types';
 
 type LeftPanelProps = {
   schema: Schema;

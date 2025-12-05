@@ -5,12 +5,11 @@ import { setupAIService } from '@main/ai/aiService';
 import { setupDBService } from '@main/db/dbService';
 import { setupStoreService } from '@main/store/storeService';
 import { app, BrowserWindow, shell } from 'electron';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import icon from '../../resources/icon.png?asset';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({

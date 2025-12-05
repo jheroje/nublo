@@ -1,3 +1,4 @@
+import { Schema } from '@common/types';
 import { CenterBottomPanel } from '@renderer/components/CenterBottomPanel';
 import { CenterTopPanel } from '@renderer/components/CenterTopPanel';
 import { LeftPanel } from '@renderer/components/LeftPanel';
@@ -13,7 +14,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shadcn/ui/tabs';
 import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { Schema } from 'src/types';
 
 export default function Shell(): React.JSX.Element {
   const [schema, setSchema] = useState<Schema>([]);

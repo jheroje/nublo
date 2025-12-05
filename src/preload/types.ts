@@ -1,4 +1,4 @@
-import { QueryResult, Schema } from 'src/types';
+import { QueryResult, Schema } from '@common/types';
 
 export type DBApi = {
   testConnection: (connectionString: string) => Promise<void>;

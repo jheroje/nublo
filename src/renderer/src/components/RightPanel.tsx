@@ -1,3 +1,4 @@
+import { Schema } from '@common/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
@@ -13,7 +14,6 @@ import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
-import { Schema } from 'src/types';
 
 type RightPanelProps = {
   schema: Schema;
