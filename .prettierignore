@@ -1,7 +1,27 @@
+# Build outputs
 out
 dist
 build
-resources
+
+# Dependencies
+node_modules
+
+# Lock files
 pnpm-lock.yaml
-LICENSE.md
 package-lock.json
+yarn.lock
+
+# Generated files
+*.d.ts
+*.tsbuildinfo
+
+# Resources
+resources
+
+# Cache
+.turbo
+.cache
+
+# Misc
+LICENSE.md
+CHANGELOG.md
