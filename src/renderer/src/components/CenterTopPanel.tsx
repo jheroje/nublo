@@ -32,7 +32,12 @@ export function CenterTopPanel(): React.JSX.Element {
     <>
       <div className="h-10 flex justify-between items-center px-4 bg-background">
         <span className="font-medium text-xs text-muted-foreground">QUERY EDITOR</span>
-        <Button size="sm" className="h-6 text-xs" onClick={onRunQuery} disabled={!isConnected}>
+        <Button
+          size="sm"
+          className="h-6 text-xs cursor-pointer"
+          onClick={onRunQuery}
+          disabled={!isConnected}
+        >
           Run Query (Cmd+Enter)
         </Button>
       </div>
