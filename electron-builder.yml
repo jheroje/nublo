@@ -1,48 +1,66 @@
 appId: com.nublo.app
-productName: nublo
+
+productName: Nublo
+
 directories:
   buildResources: build
+
 files:
-  - '!**/.vscode/*'
-  - '!src/*'
-  - '!electron.vite.config.{js,ts,mjs,cjs}'
-  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
-  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
-  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!**/{.vscode,src}/**'
+  - '!electron.vite.config.*'
+  - '!{.eslintcache,eslint.config.mjs,.prettier*,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml,tsconfig*.json}'
+
 asarUnpack:
   - resources/**
+
+npmRebuild: false
+
+# Windows
 win:
-  executableName: nublo
+  executableName: Nublo
+  target:
+    - target: nsis
+      arch:
+        - x64
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  oneClick: false
+  perMachine: true
+
+# MacOS
 mac:
   icon: icon.icon
   entitlementsInherit: build/entitlements.mac.plist
   identity: null
   sign: false
+  notarize: false
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
+
 dmg:
   artifactName: ${name}-${version}.${ext}
+
+# Linux
 linux:
   target:
     - AppImage
-    - snap
     - deb
   maintainer: jheroje
   category: Utility
+
 appImage:
   artifactName: ${name}-${version}.${ext}
-npmRebuild: false
+
 publish:
   provider: generic
   url: https://example.com/auto-updates
+
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
