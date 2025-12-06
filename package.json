@@ -2,6 +2,7 @@
   "name": "nublo",
   "version": "1.0.0",
   "description": "AI assisted DB tool",
+  "homepage": "https://github.com/jheroje/nublo",
   "type": "module",
   "main": "./out/main/index.js",
   "author": "jheroje",
