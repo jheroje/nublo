@@ -94,7 +94,7 @@ export function CollapsibleResizablePanel({
       onExpand={() => {
         setCollapsed(false);
       }}
-      className="flex flex-col transition-all duration-200 ease-in-out"
+      className="flex flex-col transition-all duration-200 ease-in-out [[data-slot=resizable-panel-group]:has([data-slot=resizable-handle]:active)_&]:transition-none"
     >
       <PanelHeader title={title} collapsed={collapsed} toggle={toggle} actions={actions} />
       <PanelBody collapsed={collapsed}>{children}</PanelBody>
