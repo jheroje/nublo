@@ -24,6 +24,9 @@
     "build:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.53",
+    "@ai-sdk/google": "^2.0.44",
+    "@ai-sdk/openai": "^2.0.77",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@openrouter/ai-sdk-provider": "^1.4.0",

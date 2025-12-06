@@ -6,7 +6,7 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
-const GITHUB_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
+const NUBLO_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   base: 'vs-dark',
   inherit: true,
   rules: [
@@ -23,8 +23,8 @@ const GITHUB_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   ],
   colors: {
     'editor.foreground': '#C9D1D9',
-    'editor.background': '#0D1117',
-    'editorGutter.background': '#0D1117',
+    'editor.background': '#09090b',
+    'editorGutter.background': '#09090b',
     'editorLineNumber.foreground': '#6E7681',
     'editorLineNumber.activeForeground': '#C9D1D9',
     'editorCursor.foreground': '#C9D1D9',
@@ -35,7 +35,7 @@ const GITHUB_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   },
 };
 
-monaco.editor.defineTheme('github-dark', GITHUB_DARK_THEME_CONFIG);
+monaco.editor.defineTheme('nublo-dark', NUBLO_DARK_THEME_CONFIG);
 
 self.MonacoEnvironment = {
   getWorker(_: string, label: string) {

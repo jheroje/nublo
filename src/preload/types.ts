@@ -1,4 +1,4 @@
-import { QueryResult, Schema } from '@common/types';
+import { QueryResult, Schema, StoreSchema } from '@common/types';
 
 export type DBApi = {
   testConnection: (connectionString: string) => Promise<void>;
@@ -16,9 +16,9 @@ export type AIApi = {
 };
 
 export type StoreApi = {
-  get: <T>(key: string) => Promise<T>;
-  set: (key: string, value: any) => Promise<void>;
-  delete: (key: string) => Promise<void>;
+  get<K extends keyof StoreSchema>(key: K): Promise<StoreSchema[K]>;
+  set<K extends keyof StoreSchema>(key: K, value: StoreSchema[K]): Promise<void>;
+  delete(key: keyof StoreSchema): Promise<void>;
 };
 
 export type Api = {

@@ -45,7 +45,7 @@ export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): Rea
     <MonacoEditor
       ref={monacoRef}
       language="sql"
-      theme="github-dark"
+      theme="nublo-dark"
       value={value}
       onChange={onChange}
       options={{

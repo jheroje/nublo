@@ -1,16 +1,11 @@
-import { Schema } from '@common/types';
 import { Editor } from '@renderer/components/editor/SQLEditor';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import React from 'react';
 
-type CenterTopPanelProps = {
-  schema: Schema;
-};
-
-export function CenterTopPanel({ schema }: CenterTopPanelProps): React.JSX.Element {
-  const { activeConnection, isConnected } = useConnection();
+export function CenterTopPanel(): React.JSX.Element {
+  const { activeConnection, isConnected, schema } = useConnection();
   const { activeTab, activeTabId, updateTabState } = useTabs();
 
   const { editorSQL } = activeTab;

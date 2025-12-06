@@ -1,11 +1,14 @@
-import { Schema } from '@common/types';
+import { AIProvider } from '@common/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import { useSettings } from '@renderer/contexts/settings/SettingsContext';
 import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@renderer/shadcn/ui/select';
@@ -15,14 +18,11 @@ import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 
-type RightPanelProps = {
-  schema: Schema;
-};
-
-export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
+export function RightPanel(): React.JSX.Element {
+  const { aiSettings } = useSettings();
   const [isAiGenerating, setIsAiGenerating] = useState(false);
 
-  const { isConnected } = useConnection();
+  const { isConnected, schema } = useConnection();
   const { activeTab, activeTabId, updateTabState, appendMessage, updateLastMessage } = useTabs();
 
   const { chatPrompt, selectedModel, chatMessages } = activeTab;
@@ -82,12 +82,42 @@ export function RightPanel({ schema }: RightPanelProps): React.JSX.Element {
           onValueChange={(model) => updateTabState(activeTabId, { selectedModel: model })}
         >
           <SelectTrigger size="sm" className="text-xs">
-            <SelectValue placeholder="Select a model..." />
+            <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent className="text-xs">
-            <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B</SelectItem>
-            <SelectItem value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</SelectItem>
-            <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B</SelectItem>
+            {aiSettings?.providers[AIProvider.OPENROUTER] && (
+              <SelectGroup>
+                <SelectLabel>OpenRouter</SelectLabel>
+                <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B</SelectItem>
+                <SelectItem value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</SelectItem>
+                <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B</SelectItem>
+              </SelectGroup>
+            )}
+            {aiSettings?.providers[AIProvider.OPENAI] && (
+              <SelectGroup>
+                <SelectLabel>OpenAI</SelectLabel>
+                <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
+              </SelectGroup>
+            )}
+            {aiSettings?.providers[AIProvider.GOOGLE] && (
+              <SelectGroup>
+                <SelectLabel>Google</SelectLabel>
+                <SelectItem value="gemini-2.0-flash-exp">Gemini 2.0 Flash</SelectItem>
+              </SelectGroup>
+            )}
+            {aiSettings?.providers[AIProvider.ANTHROPIC] && (
+              <SelectGroup>
+                <SelectLabel>Anthropic</SelectLabel>
+                <SelectItem value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</SelectItem>
+              </SelectGroup>
+            )}
+            {!Object.values(aiSettings?.providers || {}).some((k) => !!k) && (
+              <div className="p-2 text-xs text-muted-foreground text-center">
+                No providers configured.
+                <br />
+                Go to Settings to add API keys.
+              </div>
+            )}
           </SelectContent>
         </Select>
       </div>

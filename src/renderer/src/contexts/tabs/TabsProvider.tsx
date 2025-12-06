@@ -18,7 +18,7 @@ const createTab = (tabNumber: number): Tab => ({
   queryError: '',
   chatMessages: [],
   chatPrompt: '',
-  selectedModel: 'openai/gpt-oss-20b:free',
+  selectedModel: '',
 });
 
 function tabsReducer(state: TabsState, action: TabAction): TabsState {

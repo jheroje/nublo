@@ -1,25 +1,32 @@
 import { Schema } from '@common/types';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { store } from '@main/store/storeService';
 import { generateObject } from 'ai';
 import { ipcMain } from 'electron';
 import { format } from 'sql-formatter';
 import { z } from 'zod';
+import { getProviderAndModel } from './providerConfig';
 
 const SqlQuerySchema = z.object({
   query: z.string().describe('The raw PostgreSQL SQL query string'),
 });
 
 export function setupAIService(): void {
-  const openrouter = createOpenRouter({
-    apiKey: process.env.OPENROUTER_API_KEY,
-  });
-
   ipcMain.handle(
     'ai:generateQuery',
     async (event, schema: Schema, prompt: string, model: string) => {
       event.sender.send('ai:status', 'Generating SQL query...');
 
       try {
+        const settings = store.get('ai_settings');
+
+        if (!settings || !settings.providers || Object.keys(settings.providers).length === 0) {
+          throw new Error(
+            'No API keys configured. Please configure your API keys in Settings to use AI features.'
+          );
+        }
+
+        const { provider, modelId } = getProviderAndModel(model, settings);
+
         const schemaString = JSON.stringify(schema, null, 2);
 
         const systemPrompt = `
@@ -44,7 +51,7 @@ export function setupAIService(): void {
         `;
 
         const { object } = await generateObject({
-          model: openrouter(model),
+          model: provider(modelId),
           schema: SqlQuerySchema,
           system: systemPrompt,
           prompt: prompt,

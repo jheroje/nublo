@@ -1,4 +1,3 @@
-import { Schema } from '@common/types';
 import { CenterBottomPanel } from '@renderer/components/CenterBottomPanel';
 import { CenterTopPanel } from '@renderer/components/CenterTopPanel';
 import { LeftPanel } from '@renderer/components/LeftPanel';
@@ -12,32 +11,36 @@ import {
   ResizablePanelGroup,
 } from '@renderer/shadcn/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shadcn/ui/tabs';
-import { Plus, X } from 'lucide-react';
+import { Plus, Settings, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { SettingsDialog } from './SettingsDialog';
 
 export default function Shell(): React.JSX.Element {
-  const [schema, setSchema] = useState<Schema>([]);
-  const [connectionError, setConnectionError] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
 
   const { tabs, activeTabId, setActiveTab, addTab, removeTab } = useTabs();
 
   return (
     <div className="h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col">
       {/* Draggable title bar region for window dragging */}
-      <div className="h-8 w-full bg-muted/30 app-drag flex justify-center items-center">
+      <div className="h-9 w-full bg-muted/30 app-drag flex justify-center items-center">
         <p className="text-xs font-bold">Nublo</p>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute h-8 w-8 right-1 app-no-drag"
+          onClick={() => setShowSettings(true)}
+          title="Settings"
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Core app */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
         {/* Left Panel: Connections & Schema */}
-        <ResizablePanel defaultSize={15} className="p-4 bg-muted/30 min-w-[300px]">
-          <LeftPanel
-            schema={schema}
-            setSchema={setSchema}
-            connectionError={connectionError}
-            setConnectionError={setConnectionError}
-          />
+        <ResizablePanel defaultSize={15} className="bg-muted/30 min-w-[300px]">
+          <LeftPanel />
         </ResizablePanel>
 
         <ResizableHandle className="bg-muted/30" />
@@ -93,7 +96,7 @@ export default function Shell(): React.JSX.Element {
                   <ResizablePanelGroup direction="vertical">
                     {/* Top: Editor */}
                     <ResizablePanel defaultSize={60} className="flex flex-col">
-                      <CenterTopPanel schema={schema} />
+                      <CenterTopPanel />
                     </ResizablePanel>
 
                     <ResizableHandle />
@@ -109,7 +112,7 @@ export default function Shell(): React.JSX.Element {
 
                 {/* Right Panel: AI Chat */}
                 <ResizablePanel defaultSize={25} className="flex flex-col min-w-[280px]">
-                  <RightPanel schema={schema} />
+                  <RightPanel />
                 </ResizablePanel>
               </ResizablePanelGroup>
             </TabsContent>
@@ -119,6 +122,9 @@ export default function Shell(): React.JSX.Element {
 
       {/* Status Bar */}
       <StatusBar />
+
+      {/* Settings Dialog */}
+      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
     </div>
   );
 }
