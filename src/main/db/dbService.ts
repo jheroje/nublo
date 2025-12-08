@@ -1,4 +1,4 @@
-import { QueryResult, Schema, SchemaTable } from '@common/types';
+import { QueryResult, Schema, SchemaTable } from '@common/db/types';
 import { ipcMain } from 'electron';
 import { Client } from 'pg';
 

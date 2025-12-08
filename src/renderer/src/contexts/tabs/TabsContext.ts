@@ -1,4 +1,5 @@
-import { AIMessage, QueryResult } from '@common/types';
+import { AIMessage } from '@common/ai/types';
+import { QueryResult } from '@common/db/types';
 import { createContext, useContext } from 'react';
 
 export type TabsState = {

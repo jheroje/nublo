@@ -1,36 +1,37 @@
-import { AIProvider } from '@common/types';
+import { isAIProvider } from '@common/ai/utils';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { useSettings } from '@renderer/contexts/settings/SettingsContext';
 import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@renderer/shadcn/ui/select';
 import { Textarea } from '@renderer/shadcn/ui/textarea';
-import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import rehypeHighlight from 'rehype-highlight';
-import remarkGfm from 'remark-gfm';
+import React, { useMemo, useState } from 'react';
+import { MessageBubble } from './chat/MessageBubble';
+import { ModelSelector } from './chat/ModelSelector';
+
+export const MODEL_KEY_SEPARATOR = ':::';
 
 export function RightPanel(): React.JSX.Element {
-  const { aiSettings } = useSettings();
   const [isAiGenerating, setIsAiGenerating] = useState(false);
 
+  const { settings } = useSettings();
   const { isConnected, schema } = useConnection();
   const { activeTab, activeTabId, updateTabState, appendMessage, updateLastMessage } = useTabs();
 
   const { chatPrompt, selectedModel, chatMessages } = activeTab;
 
-  const isButtonDisabled = !isConnected || !chatPrompt.trim() || isAiGenerating;
+  const enabledProviders = useMemo(
+    () =>
+      Object.keys(settings.providers)
+        .filter(isAIProvider)
+        .filter((provider) => settings.providers[provider].enabled),
+    [settings.providers]
+  );
+
+  const isWriteDisabled = !selectedModel || !isConnected || isAiGenerating;
+  const isSendDisabled = isWriteDisabled || !chatPrompt.trim();
 
   const onAiGenerate = async (): Promise<void> => {
-    if (!chatPrompt.trim() || isAiGenerating) return;
+    if (isSendDisabled) return;
 
     if (!schema.length) {
       alert('Please connect to a database first to load schema.');
@@ -48,10 +49,12 @@ export function RightPanel(): React.JSX.Element {
         updateLastMessage(activeTabId, { content: `**Status:** *${status}*` });
       };
 
+      const [provider, model] = selectedModel.split(MODEL_KEY_SEPARATOR);
       const sqlResult = await window.api.ai.generateQuery(
         schema,
         chatPrompt,
-        selectedModel,
+        provider,
+        model,
         handleStatus
       );
 
@@ -77,88 +80,25 @@ export function RightPanel(): React.JSX.Element {
     <>
       <div className="h-10 flex items-center justify-between px-4 bg-background">
         <span className="font-medium text-xs text-muted-foreground">AI ASSISTANT</span>
-        <Select
-          value={selectedModel}
-          onValueChange={(model) => updateTabState(activeTabId, { selectedModel: model })}
-        >
-          <SelectTrigger size="sm" className="text-xs">
-            <SelectValue placeholder="Select a model" />
-          </SelectTrigger>
-          <SelectContent className="text-xs">
-            {aiSettings?.providers[AIProvider.OPENROUTER] && (
-              <SelectGroup>
-                <SelectLabel>OpenRouter</SelectLabel>
-                <SelectItem value="openai/gpt-oss-20b:free">GPT OSS 20B</SelectItem>
-                <SelectItem value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash</SelectItem>
-                <SelectItem value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B</SelectItem>
-              </SelectGroup>
-            )}
-            {aiSettings?.providers[AIProvider.OPENAI] && (
-              <SelectGroup>
-                <SelectLabel>OpenAI</SelectLabel>
-                <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
-              </SelectGroup>
-            )}
-            {aiSettings?.providers[AIProvider.GOOGLE] && (
-              <SelectGroup>
-                <SelectLabel>Google</SelectLabel>
-                <SelectItem value="gemini-2.0-flash-exp">Gemini 2.0 Flash</SelectItem>
-              </SelectGroup>
-            )}
-            {aiSettings?.providers[AIProvider.ANTHROPIC] && (
-              <SelectGroup>
-                <SelectLabel>Anthropic</SelectLabel>
-                <SelectItem value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</SelectItem>
-              </SelectGroup>
-            )}
-            {!Object.values(aiSettings?.providers || {}).some((k) => !!k) && (
-              <div className="p-2 text-xs text-muted-foreground text-center">
-                No providers configured.
-                <br />
-                Go to Settings to add API keys.
-              </div>
-            )}
-          </SelectContent>
-        </Select>
+        <ModelSelector
+          selectedModel={selectedModel}
+          onChange={(model) => updateTabState(activeTabId, { selectedModel: model })}
+          enabledProviders={enabledProviders}
+          providerSettings={settings.providers}
+        />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {chatMessages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
-          >
-            <div
-              className={`max-w-[90%] rounded-lg p-3 text-xs ${
-                msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-foreground'
-              }`}
-            >
-              <div className="prose prose-sm dark:prose-invert max-w-none wrap-break-word">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight]}
-                  components={{
-                    pre: (props) => {
-                      return (
-                        <div className="overflow-auto w-full my-2 bg-black/50 rounded-md p-2">
-                          <pre {...props} />
-                        </div>
-                      );
-                    },
-                    code: (props) => {
-                      return <code className="bg-black/20 rounded px-1" {...props} />;
-                    },
-                  }}
-                >
-                  {msg.content}
-                </ReactMarkdown>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {!isConnected || !selectedModel ? (
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 flex items-center text-center text-muted">
+          <p>Connect to a DB and select a model to continue</p>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {chatMessages.map((message, i) => (
+            <MessageBubble key={i} message={message} />
+          ))}
+        </div>
+      )}
 
       <div className="p-4 bg-background">
         <div className="relative">
@@ -167,19 +107,19 @@ export function RightPanel(): React.JSX.Element {
             value={chatPrompt}
             onChange={(e) => updateTabState(activeTabId, { chatPrompt: e.target.value })}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (!isSendDisabled && e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 onAiGenerate();
               }
             }}
             className="min-h-[40px] pr-12 resize-none text-xs"
-            disabled={isAiGenerating}
+            disabled={isWriteDisabled}
           />
           <Button
             size="icon"
             className="absolute bottom-2 right-2 h-6 w-6"
             onClick={onAiGenerate}
-            disabled={isButtonDisabled}
+            disabled={isSendDisabled}
           >
             {isAiGenerating ? (
               <svg

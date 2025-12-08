@@ -8,14 +8,14 @@ const dbApi: DBApi = {
 };
 
 const aiApi: AIApi = {
-  generateQuery: async (schema, prompt, model, onStatus) => {
+  generateQuery: async (schema, prompt, provider, model, onStatus) => {
     const statusListener = (_: Electron.IpcRendererEvent, status: string) => {
       if (onStatus) onStatus(status);
     };
     ipcRenderer.on('ai:status', statusListener);
 
     try {
-      const result = await ipcRenderer.invoke('ai:generateQuery', schema, prompt, model);
+      const result = await ipcRenderer.invoke('ai:generateQuery', schema, prompt, provider, model);
 
       if (result.success) {
         return result.query;

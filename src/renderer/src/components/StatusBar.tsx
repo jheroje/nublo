@@ -1,4 +1,4 @@
-import { ConnectionColor } from '@common/types';
+import { ConnectionColor } from '@common/db/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { wcagContrast } from 'culori';
 import { Plug, Unplug } from 'lucide-react';

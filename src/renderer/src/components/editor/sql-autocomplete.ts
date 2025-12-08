@@ -1,4 +1,4 @@
-import { Schema } from '@common/types';
+import { Schema } from '@common/db/types';
 import * as monaco from 'monaco-editor';
 
 // SQL Keywords

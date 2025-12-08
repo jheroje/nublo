@@ -1,4 +1,4 @@
-import { Schema } from '@common/types';
+import { Schema } from '@common/db/types';
 import { monaco } from '@renderer/components/editor/monaco-config';
 import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';

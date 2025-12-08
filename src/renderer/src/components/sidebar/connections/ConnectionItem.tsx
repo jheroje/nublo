@@ -1,4 +1,4 @@
-import { Connection } from '@common/types';
+import { Connection } from '@common/db/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import { Edit2, Trash2 } from 'lucide-react';

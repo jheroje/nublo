@@ -1,4 +1,4 @@
-import { Connection } from '@common/types';
+import { Connection } from '@common/db/types';
 import { Button } from '@renderer/shadcn/ui/button';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';

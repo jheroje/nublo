@@ -1,21 +1,3 @@
-export enum AIProvider {
-  OPENROUTER = 'openrouter',
-  OPENAI = 'openai',
-  GOOGLE = 'google',
-  ANTHROPIC = 'anthropic',
-}
-
-export type AIProviderConfig = Partial<Record<AIProvider, string>>;
-
-export type AISettings = {
-  providers: AIProviderConfig;
-};
-
-export type StoreSchema = {
-  ai_settings: AISettings;
-  saved_connections: Connection[];
-};
-
 export const ConnectionColors = [
   'red-500',
   'orange-500',
@@ -81,9 +63,4 @@ export type QueryRow = {
 export type QueryResult = {
   columns: QueryColumn[];
   rows: QueryRow[];
-};
-
-export type AIMessage = {
-  role: 'user' | 'assistant';
-  content: string;
 };

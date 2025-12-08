@@ -1,4 +1,5 @@
-import { AIProvider, AIProviderConfig } from '@common/types';
+import { AIProviderDescriptors } from '@common/ai/constants';
+import { AIProvider, AIProviderConfigMap } from '@common/ai/types';
 import { useSettings } from '@renderer/contexts/settings/SettingsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
@@ -18,45 +19,39 @@ type SettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type ProviderInfo = { name: string; placeholder: string; helpUrl: string };
-
-const PROVIDER_INFO = {
-  [AIProvider.OPENROUTER]: {
-    name: 'OpenRouter',
-    placeholder: 'sk-or-...',
-    helpUrl: 'https://openrouter.ai/keys',
-  },
-  [AIProvider.OPENAI]: {
-    name: 'OpenAI',
-    placeholder: 'sk-...',
-    helpUrl: 'https://platform.openai.com/api-keys',
-  },
-  [AIProvider.GOOGLE]: {
-    name: 'Google AI',
-    placeholder: 'AIza...',
-    helpUrl: 'https://aistudio.google.com/app/apikey',
-  },
-  [AIProvider.ANTHROPIC]: {
-    name: 'Anthropic',
-    placeholder: 'sk-ant-...',
-    helpUrl: 'https://console.anthropic.com/settings/keys',
-  },
-} satisfies Record<AIProvider, ProviderInfo>;
-
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps): React.JSX.Element {
-  const { aiSettings, updateAiSettings, isLoading } = useSettings();
-  const [apiKeys, setApiKeys] = useState(aiSettings?.providers ?? {});
+  const { settings, updateSettings } = useSettings();
+
   const [isSaving, setIsSaving] = useState(false);
+  const [providersSettings, setProvidersSettings] = useState<AIProviderConfigMap>(
+    settings.providers
+  );
+
+  const updateProvider = (provider: AIProvider, newValue: string) => {
+    setProvidersSettings((prev) => {
+      const oldConfig = prev[provider];
+
+      const updated: AIProviderConfigMap = {
+        ...prev,
+        [provider]: {
+          ...oldConfig,
+          enabled: Boolean(newValue),
+          initField: {
+            ...oldConfig.initField,
+            value: newValue,
+          },
+        },
+      };
+
+      return updated;
+    });
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const providers: AIProviderConfig = Object.fromEntries(
-        Object.entries(apiKeys).filter(([, key]) => key.trim())
-      );
-
-      await updateAiSettings({
-        providers,
+      await updateSettings({
+        providers: providersSettings,
       });
 
       onOpenChange(false);
@@ -73,58 +68,54 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps): Rea
       <DialogContent className="sm:max-w-[500px]" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>AI Provider Settings</DialogTitle>
-          <DialogDescription>Configure your API keys for AI providers.</DialogDescription>
+          <DialogDescription>Configure your AI providers.</DialogDescription>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">Loading settings...</div>
-        ) : (
-          <div className="space-y-4 py-4">
-            {Object.values(AIProvider).map((provider) => {
-              const info = PROVIDER_INFO[provider];
-              const key = apiKeys[provider] ?? '';
+        <div className="space-y-4 py-4">
+          {Object.values(AIProviderDescriptors).map((provider) => {
+            const config = providersSettings[provider.key];
 
-              return (
-                <div key={provider} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label
-                      htmlFor={provider}
-                      className="text-sm font-medium flex items-center gap-2"
-                    >
-                      {info.name}
-                      {key && <span className="h-2 w-2 rounded-full bg-green-500" />}
-                    </Label>
+            return (
+              <div key={provider.key} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor={provider.key}
+                    className="text-sm font-medium flex items-center gap-2"
+                  >
+                    {provider.name}
+                    {config.enabled && <span className="h-2 w-2 rounded-full bg-green-500" />}
+                  </Label>
+
+                  {provider.initField.help && (
                     <a
-                      href={info.helpUrl}
+                      href={provider.initField.help.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-primary hover:underline"
                     >
-                      Get API Key
+                      {provider.initField.help.label}
                     </a>
-                  </div>
-
-                  <Input
-                    id={provider}
-                    type="password"
-                    placeholder={info.placeholder}
-                    value={key}
-                    onChange={(e) =>
-                      setApiKeys((prev) => ({ ...prev, [provider]: e.target.value }))
-                    }
-                    className="text-xs"
-                  />
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        )}
+
+                <Input
+                  id={provider.key}
+                  type={provider.initField.type}
+                  placeholder={provider.initField.placeholder}
+                  value={config.initField.value}
+                  onChange={(e) => updateProvider(provider.key, e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+            );
+          })}
+        </div>
 
         <DialogFooter>
           <Button variant="outline" disabled={isSaving} onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button disabled={isSaving || isLoading} onClick={handleSave}>
+          <Button disabled={isSaving} onClick={handleSave}>
             {isSaving ? 'Saving...' : 'Save Settings'}
           </Button>
         </DialogFooter>

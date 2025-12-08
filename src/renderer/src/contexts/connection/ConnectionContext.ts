@@ -1,4 +1,4 @@
-import { Connection, Schema } from '@common/types';
+import { Connection, Schema } from '@common/db/types';
 import { createContext, useContext } from 'react';
 
 type ConnectionContextValue = {

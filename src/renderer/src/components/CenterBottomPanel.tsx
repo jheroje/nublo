@@ -1,4 +1,4 @@
-import { QueryRow } from '@common/types';
+import { QueryRow } from '@common/db/types';
 import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { ScrollArea, ScrollBar } from '@renderer/shadcn/ui/scroll-area';
 import {

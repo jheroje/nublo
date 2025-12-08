@@ -1,10 +1,11 @@
-import { Schema } from '@common/types';
+import { AIProvider } from '@common/ai/types';
+import { Schema } from '@common/db/types';
 import { store } from '@main/store/storeService';
 import { generateObject } from 'ai';
 import { ipcMain } from 'electron';
 import { format } from 'sql-formatter';
 import { z } from 'zod';
-import { getProviderAndModel } from './providerConfig';
+import { getLanguageModel } from './providers';
 
 const SqlQuerySchema = z.object({
   query: z.string().describe('The raw PostgreSQL SQL query string'),
@@ -13,19 +14,17 @@ const SqlQuerySchema = z.object({
 export function setupAIService(): void {
   ipcMain.handle(
     'ai:generateQuery',
-    async (event, schema: Schema, prompt: string, model: string) => {
+    async (event, schema: Schema, prompt: string, provider: AIProvider, model: string) => {
       event.sender.send('ai:status', 'Generating SQL query...');
 
       try {
         const settings = store.get('ai_settings');
 
-        if (!settings || !settings.providers || Object.keys(settings.providers).length === 0) {
-          throw new Error(
-            'No API keys configured. Please configure your API keys in Settings to use AI features.'
-          );
-        }
+        const languageModel = getLanguageModel(provider, model, settings);
 
-        const { provider, modelId } = getProviderAndModel(model, settings);
+        if (!languageModel) {
+          throw new Error('No valid language model found from configuration');
+        }
 
         const schemaString = JSON.stringify(schema, null, 2);
 
@@ -51,7 +50,7 @@ export function setupAIService(): void {
         `;
 
         const { object } = await generateObject({
-          model: provider(modelId),
+          model: languageModel,
           schema: SqlQuerySchema,
           system: systemPrompt,
           prompt: prompt,

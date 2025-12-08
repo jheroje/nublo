@@ -1,4 +1,4 @@
-import { AIMessage } from '@common/types';
+import { AIMessage } from '@common/ai/types';
 import { ReactNode, useReducer } from 'react';
 import { Tab, TabsContext, TabsState } from './TabsContext';
 

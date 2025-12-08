@@ -1,4 +1,4 @@
-import { Connection, Schema } from '@common/types';
+import { Connection, Schema } from '@common/db/types';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { ConnectionContext } from './ConnectionContext';
 

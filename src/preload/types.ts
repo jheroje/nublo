@@ -1,4 +1,5 @@
-import { QueryResult, Schema, StoreSchema } from '@common/types';
+import { QueryResult, Schema } from '@common/db/types';
+import { StoreSchema } from '@common/store/types';
 
 export type DBApi = {
   testConnection: (connectionString: string) => Promise<void>;
@@ -10,6 +11,7 @@ export type AIApi = {
   generateQuery: (
     schema: Schema,
     prompt: string,
+    provider: string,
     model: string,
     onStatus: (status: string) => void
   ) => Promise<string>;

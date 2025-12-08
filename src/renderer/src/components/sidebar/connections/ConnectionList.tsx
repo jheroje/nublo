@@ -1,4 +1,4 @@
-import { Connection } from '@common/types';
+import { Connection } from '@common/db/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import React from 'react';
 import { ConnectionItem } from './ConnectionItem';

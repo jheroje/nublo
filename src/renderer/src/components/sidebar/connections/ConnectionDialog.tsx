@@ -1,4 +1,4 @@
-import { Connection, ConnectionColor, ConnectionColors } from '@common/types';
+import { Connection, ConnectionColor, ConnectionColors } from '@common/db/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {

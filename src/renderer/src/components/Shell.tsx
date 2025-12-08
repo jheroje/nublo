@@ -92,7 +92,7 @@ export default function Shell(): React.JSX.Element {
             >
               <ResizablePanelGroup direction="horizontal" className="h-full flex-1">
                 {/* Center Panel: Editor & Results */}
-                <ResizablePanel defaultSize={75}>
+                <ResizablePanel defaultSize={70}>
                   <ResizablePanelGroup direction="vertical">
                     {/* Top: Editor */}
                     <ResizablePanel defaultSize={60} className="flex flex-col">
@@ -111,7 +111,7 @@ export default function Shell(): React.JSX.Element {
                 <ResizableHandle />
 
                 {/* Right Panel: AI Chat */}
-                <ResizablePanel defaultSize={25} className="flex flex-col min-w-[280px]">
+                <ResizablePanel defaultSize={30} className="flex flex-col min-w-[280px]">
                   <RightPanel />
                 </ResizablePanel>
               </ResizablePanelGroup>
