@@ -68,7 +68,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps): Rea
       <DialogContent className="sm:max-w-[500px]" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>AI Provider Settings</DialogTitle>
-          <DialogDescription>Configure your AI providers.</DialogDescription>
+          <DialogDescription>Configure your AI providers</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
