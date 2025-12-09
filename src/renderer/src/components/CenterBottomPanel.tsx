@@ -36,7 +36,8 @@ export function CenterBottomPanel(): React.JSX.Element {
           typeof info.getValue() === 'object'
             ? JSON.stringify(info.getValue())
             : String(info.getValue()),
-        enableResizing: true,
+        size: 50,
+        minSize: 50,
       })
     );
   }, [queryResult?.columns]);
@@ -47,6 +48,7 @@ export function CenterBottomPanel(): React.JSX.Element {
     columns,
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: 'onChange',
+    enableColumnResizing: true,
   });
 
   return (
@@ -95,7 +97,7 @@ export function CenterBottomPanel(): React.JSX.Element {
                         <TableCell
                           key={cell.id}
                           style={{ width: cell.column.getSize() }}
-                          className="border-r last:border-r-0 text-xs"
+                          className="border-r last:border-r-0 text-xs truncate overflow-hidden"
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
