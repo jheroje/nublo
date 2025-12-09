@@ -138,3 +138,13 @@
     scrollbar-width: none; /* Firefox */
   }
 }
+
+/* Light theme */
+.hljs-light {
+  @import 'highlight.js/styles/github.css';
+}
+
+/* Dark theme */
+.hljs-dark {
+  @import 'highlight.js/styles/github-dark.css';
+}

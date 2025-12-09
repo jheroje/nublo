@@ -1,31 +1,38 @@
 import { AIMessage } from '@common/ai/types';
+import { useSettings } from '@renderer/contexts/settings/SettingsContext';
 import { ScrollArea, ScrollBar } from '@renderer/shadcn/ui/scroll-area';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 
-const MarkdownContent = ({ content }: { content: string }) => (
-  <ReactMarkdown
-    remarkPlugins={[remarkGfm]}
-    rehypePlugins={[rehypeHighlight]}
-    components={{
-      pre: (props) => (
-        <div className="overflow-auto w-full my-2 bg-black/50 rounded-md p-1">
-          <pre {...props} />
-        </div>
-      ),
-      code: (props) => (
-        <ScrollArea>
-          <code className="bg-black/20 rounded px-1" {...props} />
-          <ScrollBar orientation="vertical" />
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      ),
-    }}
-  >
-    {content}
-  </ReactMarkdown>
-);
+const MarkdownContent = ({ content }: { content: string }) => {
+  const { getTheme } = useSettings();
+
+  return (
+    <div className={getTheme() === 'dark' ? 'hljs-dark' : 'hljs-light'}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeHighlight]}
+        components={{
+          pre: (props) => (
+            <div className="overflow-auto w-full my-2 bg-background rounded-md p-1">
+              <pre {...props} />
+            </div>
+          ),
+          code: (props) => (
+            <ScrollArea>
+              <code className="bg-background rounded-md px-1" {...props} />
+              <ScrollBar orientation="vertical" />
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+};
 
 export const MessageBubble = ({ message: { role, content } }: { message: AIMessage }) => (
   <div className={`flex flex-col ${role === 'user' ? 'items-end' : 'items-start'}`}>
