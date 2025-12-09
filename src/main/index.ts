@@ -22,7 +22,7 @@ function createWindow(): void {
     show: false,
     frame: false,
     autoHideMenuBar: true,
-    titleBarStyle: isMac ? 'hiddenInset' : undefined,
+    titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
     titleBarOverlay: isWindows
       ? {
           color: '#09090b',
