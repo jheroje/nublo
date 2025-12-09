@@ -21,10 +21,10 @@ export function RightPanel(): React.JSX.Element {
 
   const enabledProviders = useMemo(
     () =>
-      Object.keys(settings.providers)
+      Object.keys(settings.ai.providers)
         .filter(isAIProvider)
-        .filter((provider) => settings.providers[provider].enabled),
-    [settings.providers]
+        .filter((provider) => settings.ai.providers[provider].enabled),
+    [settings.ai.providers]
   );
 
   const isWriteDisabled = !selectedModel || !isConnected || isAiGenerating;
@@ -84,7 +84,7 @@ export function RightPanel(): React.JSX.Element {
           selectedModel={selectedModel}
           onChange={(model) => updateTabState(activeTabId, { selectedModel: model })}
           enabledProviders={enabledProviders}
-          providerSettings={settings.providers}
+          providerSettings={settings.ai.providers}
         />
       </div>
 

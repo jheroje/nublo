@@ -1,7 +1,7 @@
-import { AISettings } from '@common/ai/types';
 import { Connection } from '@common/db/types';
+import { Settings } from '@common/settings/types';
 
 export type StoreSchema = {
-  ai_settings: AISettings;
+  settings: Settings;
   saved_connections: Connection[];
 };

@@ -35,7 +35,37 @@ const NUBLO_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   },
 };
 
+const NUBLO_LIGHT_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
+  base: 'vs',
+  inherit: true,
+  rules: [
+    { token: 'comment', foreground: '6E7781' },
+    { token: 'string', foreground: '0A3069' },
+    { token: 'keyword', foreground: 'CF222E' },
+    { token: 'number', foreground: '0550AE' },
+    { token: 'delimiter', foreground: '24292F' },
+    { token: 'type', foreground: '953800' },
+    { token: 'identifier', foreground: '24292F' },
+    { token: 'variable', foreground: '24292F' },
+    { token: 'function', foreground: '8250DF' },
+    { token: 'tag', foreground: '116329' },
+  ],
+  colors: {
+    'editor.foreground': '#24292F',
+    'editor.background': '#ffffff',
+    'editorGutter.background': '#ffffff',
+    'editorLineNumber.foreground': '#8c959f',
+    'editorLineNumber.activeForeground': '#24292F',
+    'editorCursor.foreground': '#24292F',
+    'editor.selectionBackground': '#BBDFFF',
+    'editor.inactiveSelectionBackground': '#E5EBF1',
+    'editorIndentGuide.background': '#D8DEE4',
+    'editorIndentGuide.activeBackground': '#30363D',
+  },
+};
+
 monaco.editor.defineTheme('nublo-dark', NUBLO_DARK_THEME_CONFIG);
+monaco.editor.defineTheme('nublo-light', NUBLO_LIGHT_THEME_CONFIG);
 
 self.MonacoEnvironment = {
   getWorker(_: string, label: string) {

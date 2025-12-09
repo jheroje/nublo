@@ -1,5 +1,6 @@
 import { Schema } from '@common/db/types';
 import { monaco } from '@renderer/components/editor/monaco-config';
+import { useSettings } from '@renderer/contexts/settings/SettingsContext';
 import React, { useEffect, useRef } from 'react';
 import MonacoEditor, { MonacoEditorHandle } from 'react-monaco-editor';
 import { registerSQLAutocomplete } from './sql-autocomplete';
@@ -12,6 +13,8 @@ type EditorProps = {
 };
 
 export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): React.JSX.Element => {
+  const { getTheme } = useSettings();
+
   const monacoRef = useRef<MonacoEditorHandle | null>(null);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export const Editor = ({ value, onChange, onExecute, schema }: EditorProps): Rea
     <MonacoEditor
       ref={monacoRef}
       language="sql"
-      theme="nublo-dark"
+      theme={`nublo-${getTheme()}`}
       value={value}
       onChange={onChange}
       options={{

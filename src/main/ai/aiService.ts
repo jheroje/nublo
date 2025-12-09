@@ -18,7 +18,7 @@ export function setupAIService(): void {
       event.sender.send('ai:status', 'Generating SQL query...');
 
       try {
-        const settings = store.get('ai_settings');
+        const settings = store.get('settings').ai;
 
         const languageModel = getLanguageModel(provider, model, settings);
 

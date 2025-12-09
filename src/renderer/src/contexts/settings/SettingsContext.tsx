@@ -1,9 +1,10 @@
-import { AISettings } from '@common/ai/types';
+import { AppearanceTheme, Settings } from '@common/settings/types';
 import { createContext, useContext } from 'react';
 
 export type SettingsContextType = {
-  settings: AISettings;
-  updateSettings: (settings: AISettings) => Promise<void>;
+  settings: Settings;
+  updateSettings: (settings: Partial<Settings>) => Promise<void>;
+  getTheme: () => AppearanceTheme;
 };
 
 export const SettingsContext = createContext<SettingsContextType | null>(null);
