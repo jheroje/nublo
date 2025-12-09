@@ -41,3 +41,12 @@ const api: Api = {
 };
 
 contextBridge.exposeInMainWorld('api', api);
+
+contextBridge.exposeInMainWorld('electron', {
+  platform: process.platform,
+  windowActions: {
+    minimize: () => ipcRenderer.send('win-min'),
+    maximimize: () => ipcRenderer.send('win-max'),
+    close: () => ipcRenderer.send('win-close'),
+  },
+});

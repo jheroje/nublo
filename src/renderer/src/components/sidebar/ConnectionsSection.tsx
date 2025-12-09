@@ -21,7 +21,7 @@ export function ConnectionsSection(): React.JSX.Element {
         title="Connections"
         defaultSize={35}
         minSize={10}
-        collapsedSize={4}
+        collapsedSize={5}
         actions={
           <Button
             variant="ghost"
@@ -29,7 +29,7 @@ export function ConnectionsSection(): React.JSX.Element {
             className="h-5 w-5 cursor-pointer"
             onClick={() => handleOpenDialog()}
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="size-4" />
           </Button>
         }
       >

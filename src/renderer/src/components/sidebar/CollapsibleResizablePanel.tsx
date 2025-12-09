@@ -1,6 +1,6 @@
 import { ResizablePanel } from '@renderer/shadcn/ui/resizable';
 import { ScrollArea } from '@renderer/shadcn/ui/scroll-area';
-import { ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { ImperativePanelHandle } from 'react-resizable-panels';
 
@@ -16,11 +16,15 @@ type ClickableProps = { onClick: (e: React.MouseEvent) => void };
 function PanelHeader({ title, collapsed, toggle, actions }: PanelHeaderProps) {
   return (
     <div
-      className="flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded p-2 min-h-8"
+      className="flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded p-2 h-9"
       onClick={toggle}
     >
       <div className="flex items-center gap-2">
-        <ChevronRight className={`h-3 w-3 transition-transform ${collapsed ? '' : 'rotate-90'}`} />
+        {collapsed ? (
+          <ChevronRight className="size-4 transition-transform" />
+        ) : (
+          <ChevronDown className="size-4 transition-transform" />
+        )}
         <h3 className="font-semibold text-xs uppercase text-muted-foreground">{title}</h3>
       </div>
       <div className="flex items-center gap-1">

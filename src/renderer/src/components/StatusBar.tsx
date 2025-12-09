@@ -1,7 +1,8 @@
 import { ConnectionColor } from '@common/db/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import { Button } from '@renderer/shadcn/ui/button';
 import { wcagContrast } from 'culori';
-import { Plug, Unplug } from 'lucide-react';
+import { Plug, Settings, Unplug } from 'lucide-react';
 import React from 'react';
 import colors from 'tailwindcss/colors';
 
@@ -23,29 +24,42 @@ function shouldUseDarkText(colorClass: ConnectionColor): boolean {
 
   return contrastBlack > contrastWhite;
 }
+type StatusBarProps = {
+  setShowSettings: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-export function StatusBar(): React.JSX.Element {
+export function StatusBar({ setShowSettings }: StatusBarProps): React.JSX.Element {
   const { activeConnection } = useConnection();
 
-  if (!activeConnection) {
-    return (
-      <div className="h-6 w-full border-t flex items-center p-3 text-xs bg-muted/30">
-        <Unplug className="h-3.5 w-3.5 mr-2 text-muted-foreground/50" />
-        <span className="font-medium text-muted-foreground/50">Not connected</span>
-      </div>
-    );
-  }
+  const foreground = activeConnection
+    ? shouldUseDarkText(activeConnection.color)
+      ? 'text-black'
+      : 'text-white'
+    : 'text-muted-foreground/50';
 
-  const useDarkText = shouldUseDarkText(activeConnection.color);
+  const background = activeConnection ? `bg-${activeConnection.color}` : 'bg-muted/30';
+
+  const text = activeConnection ? activeConnection.name : 'Not connected';
+
+  const ConnectionIcon = activeConnection ? Plug : Unplug;
 
   return (
     <div
-      className={`h-6 w-full border-t flex items-center p-3 text-xs bg-${activeConnection.color}`}
+      className={`h-8 w-full border-t flex items-center justify-between p-3 text-xs ${background} ${foreground}`}
     >
-      <Plug className={`h-3.5 w-3.5 mr-2 ${useDarkText ? 'text-black' : 'text-white'}`} />
-      <span className={`font-medium ${useDarkText ? 'text-black' : 'text-white'}`}>
-        {activeConnection.name}
-      </span>
+      <div className="flex items-center gap-2">
+        <ConnectionIcon className="size-3.5" />
+        <span className="font-medium">{text}</span>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute h-6 w-6 right-2 cursor-pointer"
+        onClick={() => setShowSettings(true)}
+        title="Settings"
+      >
+        <Settings className="size-5" />
+      </Button>
     </div>
   );
 }

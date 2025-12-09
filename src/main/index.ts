@@ -4,12 +4,16 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { setupAIService } from '@main/ai/aiService';
 import { setupDBService } from '@main/db/dbService';
 import { setupStoreService } from '@main/store/storeService';
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import icon from '../../resources/icon.png?asset';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const isMac = process.platform === 'darwin';
+const isWindows = process.platform === 'win32';
+const isLinux = process.platform === 'linux';
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -18,9 +22,15 @@ function createWindow(): void {
     show: false,
     frame: false,
     autoHideMenuBar: true,
-    titleBarStyle: 'hiddenInset',
-    titleBarOverlay: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    titleBarStyle: isMac ? 'hiddenInset' : undefined,
+    titleBarOverlay: isWindows
+      ? {
+          color: '#09090b',
+          symbolColor: '#ffffff',
+          height: 36,
+        }
+      : undefined,
+    ...(isLinux ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
@@ -44,6 +54,12 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
+
+  ipcMain.on('win-min', () => mainWindow.minimize());
+  ipcMain.on('win-max', () =>
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+  );
+  ipcMain.on('win-close', () => mainWindow.close());
 }
 
 app.whenReady().then(() => {
@@ -65,7 +81,7 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  if (!isMac) {
     app.quit();
   }
 });

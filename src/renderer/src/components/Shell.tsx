@@ -11,9 +11,10 @@ import {
   ResizablePanelGroup,
 } from '@renderer/shadcn/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shadcn/ui/tabs';
-import { Plus, Settings, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { SettingsDialog } from './SettingsDialog';
+import TitleBar from './TitleBar';
 
 export default function Shell(): React.JSX.Element {
   const [showSettings, setShowSettings] = useState(false);
@@ -23,18 +24,7 @@ export default function Shell(): React.JSX.Element {
   return (
     <div className="h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col">
       {/* Draggable title bar region for window dragging */}
-      <div className="h-9 w-full bg-muted/30 app-drag flex justify-center items-center">
-        <p className="text-xs font-bold">Nublo</p>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute h-8 w-8 right-1 app-no-drag"
-          onClick={() => setShowSettings(true)}
-          title="Settings"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
-      </div>
+      <TitleBar />
 
       {/* Core app */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
@@ -62,16 +52,16 @@ export default function Shell(): React.JSX.Element {
                   >
                     <span className="mr-2 truncate max-w-[100px]">{tab.title}</span>
                     {tabs.length > 1 && (
-                      <div
-                        role="button"
-                        className="opacity-0 group-hover:opacity-100 hover:bg-muted rounded-full p-0.5 transition-opacity"
+                      <Button
+                        variant="ghost"
+                        className="opacity-0 group-hover:opacity-100 hover:bg-muted rounded-full transition-opacity size-6 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeTab(tab.id);
                         }}
                       >
-                        <X size={12} />
-                      </div>
+                        <X className="size-4" />
+                      </Button>
                     )}
                   </TabsTrigger>
                 ))}
@@ -80,9 +70,9 @@ export default function Shell(): React.JSX.Element {
                 size="icon"
                 variant="ghost"
                 onClick={addTab}
-                className="h-8 w-8 ml-2 shrink-0 mr-4 rounded-full"
+                className="size-6 ml-2 shrink-0 mr-4 rounded-full cursor-pointer"
               >
-                <Plus size={16} />
+                <Plus className="size-4" />
               </Button>
             </div>
 
@@ -121,7 +111,7 @@ export default function Shell(): React.JSX.Element {
       </ResizablePanelGroup>
 
       {/* Status Bar */}
-      <StatusBar />
+      <StatusBar setShowSettings={setShowSettings} />
 
       {/* Settings Dialog */}
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />

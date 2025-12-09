@@ -5,7 +5,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@renderer/shadcn/ui/collapsible';
-import { ChevronRight, CopyMinus, Table } from 'lucide-react';
+import { ChevronDown, ChevronRight, CopyMinus, Table } from 'lucide-react';
 import React, { useState } from 'react';
 import { CollapsibleResizablePanel } from './CollapsibleResizablePanel';
 
@@ -35,7 +35,7 @@ export function SchemaSection(): React.JSX.Element {
       title="Schema"
       defaultSize={65}
       minSize={10}
-      collapsedSize={4}
+      collapsedSize={5}
       actions={
         <Button
           variant="ghost"
@@ -46,7 +46,7 @@ export function SchemaSection(): React.JSX.Element {
             collapseAllTables();
           }}
         >
-          <CopyMinus className="h-3 w-3" />
+          <CopyMinus className="size-4" />
         </Button>
       }
     >
@@ -61,13 +61,14 @@ export function SchemaSection(): React.JSX.Element {
               open={openTables.has(table.tableName)}
               onOpenChange={() => toggleTable(table.tableName)}
             >
-              <CollapsibleTrigger className="w-full flex items-center gap-2 hover:bg-muted/50 rounded px-2 py-1.5 transition-colors">
-                <ChevronRight
-                  className={`h-3 w-3 transition-transform ${
-                    openTables.has(table.tableName) ? 'rotate-90' : ''
-                  }`}
-                />
-                <Table className={`h-3 w-3 text-${activeConnection.color}`} />
+              <CollapsibleTrigger className="w-full flex items-center gap-2 hover:bg-muted/50 rounded px-2 py-1.5 transition-colors cursor-pointer">
+                {openTables.has(table.tableName) ? (
+                  <ChevronDown className="size-3 transition-transform" />
+                ) : (
+                  <ChevronRight className="size-3 transition-transform" />
+                )}
+
+                <Table className={`size-3 text-${activeConnection.color}`} />
                 <span className="font-medium text-foreground">{table.tableName}</span>
                 <span className="ml-auto text-muted-foreground text-xs">
                   {table.columns.length}

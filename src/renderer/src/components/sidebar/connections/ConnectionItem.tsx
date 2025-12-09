@@ -1,8 +1,8 @@
-import { Connection } from '@common/db/types';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import { Edit2, Trash2 } from 'lucide-react';
 import React from 'react';
+import { Connection } from '../../../../../common/db/types';
 
 type ConnectionItemProps = {
   connection: Connection;
@@ -59,22 +59,22 @@ export function ConnectionItem({ connection, onEdit }: ConnectionItemProps): Rea
     >
       <div className={`w-3 h-3 mx-1 rounded-full bg-${connection.color}`} />
       <span className="text-xs font-medium truncate flex-1">{connection.name}</span>
-      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="icon"
-          className="h-5 w-5 text-muted-foreground hover:text-foreground"
+          className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer"
           onClick={handleEdit}
         >
-          <Edit2 className="h-3 w-3" />
+          <Edit2 className="size-4" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="h-5 w-5 text-muted-foreground hover:text-red-500"
+          className="h-5 w-5 text-muted-foreground hover:text-red-500 cursor-pointer"
           onClick={handleDelete}
         >
-          <Trash2 className="h-3 w-3" />
+          <Trash2 className="size-4" />
         </Button>
       </div>
     </div>

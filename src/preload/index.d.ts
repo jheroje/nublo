@@ -1,9 +1,15 @@
-import { ElectronAPI } from '@electron-toolkit/preload';
 import { Api } from './types';
 
 declare global {
   interface Window {
-    electron: ElectronAPI;
+    electron: {
+      platform: NodeJS.Platform;
+      windowAction: {
+        minimize: () => void
+        maximize: () => void
+        close: () => void
+      },
+    },
     api: Api;
   }
 }
