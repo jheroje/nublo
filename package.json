@@ -6,6 +6,7 @@
   "type": "module",
   "main": "./out/main/index.js",
   "author": "jheroje",
+  "license": "MIT",
   "engines": {
     "node": ">=24"
   },
