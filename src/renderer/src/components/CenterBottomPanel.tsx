@@ -37,7 +37,6 @@ export function CenterBottomPanel(): React.JSX.Element {
             ? JSON.stringify(info.getValue())
             : String(info.getValue()),
         size: 50,
-        minSize: 50,
       })
     );
   }, [queryResult?.columns]);
