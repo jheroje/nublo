@@ -53,10 +53,10 @@ const NUBLO_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   base: 'vs-dark',
   inherit: true,
   rules: [
-    { token: 'keyword.sql', foreground: 'C792EA', fontStyle: 'bold' },
+    { token: 'keyword.sql', foreground: '805AD5', fontStyle: 'bold' },
     { token: 'operator.sql', foreground: '89DDFF' },
     { token: 'number.sql', foreground: 'F78C6C' },
-    { token: 'string.sql', foreground: 'C3E88D' },
+    { token: 'string.sql', foreground: '81E03D' },
     { token: 'comment.sql', foreground: '546E7A', fontStyle: 'italic' },
     { token: 'function.sql', foreground: '82AAFF' },
     { token: 'identifier.sql', foreground: 'ECEFF4' },
@@ -66,7 +66,7 @@ const NUBLO_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   colors: {
     'editor.foreground': '#ECEFF4',
     'editor.background': '#09090b',
-    'editorCursor.foreground': '#FFD866',
+    'editorCursor.foreground': '#ECEFF4',
     'editor.lineHighlightBackground': '#0F0F13',
     'editor.selectionBackground': '#3E4E60AA',
     'editor.inactiveSelectionBackground': '#3E4E6033',
@@ -96,7 +96,7 @@ const NUBLO_LIGHT_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   colors: {
     'editor.foreground': '#2E3440',
     'editor.background': '#FFFFFF',
-    'editorCursor.foreground': '#FFD866',
+    'editorCursor.foreground': '#2E3440',
     'editor.lineHighlightBackground': '#F5F5F5',
     'editor.selectionBackground': '#93A1A133',
     'editor.inactiveSelectionBackground': '#93A1A133',

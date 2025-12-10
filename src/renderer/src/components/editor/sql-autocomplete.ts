@@ -470,6 +470,7 @@ function createColumnCompletions(
  */
 export function registerSQLAutocomplete(schema: Schema): monaco.IDisposable {
   return monaco.languages.registerCompletionItemProvider('sql', {
+    triggerCharacters: ['.', ',', '(', ' '],
     provideCompletionItems: (model, position) => {
       const word = model.getWordUntilPosition(position);
 
