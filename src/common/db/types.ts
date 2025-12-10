@@ -41,6 +41,8 @@ export type SchemaColumn = {
   name: string;
   type: string;
   isNullable: boolean;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
 };
 
 export type SchemaTable = {

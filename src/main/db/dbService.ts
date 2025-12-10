@@ -26,10 +26,36 @@ export function setupDBService(): void {
     await client.connect();
 
     const res = await client.query(`
-      SELECT table_name, column_name, data_type, is_nullable
-      FROM information_schema.columns
-      WHERE table_schema = 'public'
-      ORDER BY table_name, ordinal_position
+      WITH key_flags AS (
+          SELECT 
+              kcu.table_schema,
+              kcu.table_name,
+              kcu.column_name,
+              BOOL_OR(tc.constraint_type = 'PRIMARY KEY') AS is_primary_key,
+              BOOL_OR(tc.constraint_type = 'FOREIGN KEY') AS is_foreign_key
+          FROM information_schema.key_column_usage kcu
+          JOIN information_schema.table_constraints tc
+            ON  tc.constraint_name = kcu.constraint_name
+            AND tc.table_schema = kcu.table_schema
+          GROUP BY
+              kcu.table_schema,
+              kcu.table_name,
+              kcu.column_name
+      )
+      SELECT
+          c.table_name,
+          c.column_name,
+          c.data_type,
+          c.is_nullable,
+          COALESCE(k.is_primary_key, false) AS is_primary_key,
+          COALESCE(k.is_foreign_key, false) AS is_foreign_key
+      FROM information_schema.columns c
+      LEFT JOIN key_flags k
+        ON  c.table_schema = k.table_schema
+        AND c.table_name  = k.table_name
+        AND c.column_name = k.column_name
+      WHERE c.table_schema = 'public'
+      ORDER BY c.table_name, c.ordinal_position;
     `);
 
     await client.end();
@@ -47,6 +73,8 @@ export function setupDBService(): void {
         name: row.column_name,
         type: row.data_type,
         isNullable: row.is_nullable === 'YES',
+        isPrimaryKey: row.is_primary_key,
+        isForeignKey: row.is_foreign_key,
       });
     });
 

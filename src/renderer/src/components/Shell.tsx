@@ -29,7 +29,7 @@ export default function Shell(): React.JSX.Element {
       {/* Core app */}
       <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
         {/* Left Panel: Connections & Schema */}
-        <ResizablePanel defaultSize={15} className="bg-muted/30 min-w-[300px]">
+        <ResizablePanel defaultSize={15} className="bg-muted/30 min-w-70">
           <LeftPanel />
         </ResizablePanel>
 

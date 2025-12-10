@@ -5,7 +5,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@renderer/shadcn/ui/collapsible';
-import { ChevronDown, ChevronRight, CopyMinus, Table } from 'lucide-react';
+import { ChevronDown, ChevronRight, CopyMinus, KeyRound, Link, Table } from 'lucide-react';
 import React, { useState } from 'react';
 import { CollapsibleResizablePanel } from './CollapsibleResizablePanel';
 
@@ -77,12 +77,13 @@ export function SchemaSection(): React.JSX.Element {
               <CollapsibleContent className="pl-6 mt-1">
                 <ul className="border-l ml-1 space-y-1">
                   {table.columns.map((col) => (
-                    <li
-                      key={col.name}
-                      className="text-muted-foreground truncate pl-3 py-0.5"
-                      title={`${col.name} (${col.type})`}
-                    >
-                      {col.name} <span className="opacity-50 text-xs">{col.type}</span>
+                    <li key={col.name} className="text-muted-foreground truncate pl-3 py-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span>{col.name}</span>
+                        <span className="opacity-50 text-xs truncate">{col.type}</span>
+                        {col.isPrimaryKey && <KeyRound className="size-2.5 text-yellow-500" />}
+                        {col.isForeignKey && <Link className="size-2.5 text-blue-500" />}
+                      </div>
                     </li>
                   ))}
                 </ul>
