@@ -4,7 +4,9 @@ Nublo is a cross-platform DB tool assisted by AI. Built with Electron, AI SDK, R
 
 It provides a modern, intuitive interface for connecting to PostgreSQL databases, exploring schemas, writing SQL queries, and leveraging AI to generate queries from natural language prompts and the DB schema.
 
-![App Screenshot](images/screenshot.png)
+![Editor Screenshot](images/editor.png)
+
+![Diagram Screenshot](images/diagram.png)
 
 ## Supported providers
 

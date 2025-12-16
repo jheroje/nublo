@@ -1,16 +1,18 @@
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
+import { useTabs } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@renderer/shadcn/ui/collapsible';
-import { ChevronDown, ChevronRight, CopyMinus, KeyRound, Link, Table } from 'lucide-react';
+import { ChevronDown, ChevronRight, CopyMinus, Eye, KeyRound, Link, Table } from 'lucide-react';
 import React, { useState } from 'react';
 import { CollapsibleResizablePanel } from './CollapsibleResizablePanel';
 
 export function SchemaSection(): React.JSX.Element {
   const [openTables, setOpenTables] = useState<Set<string>>(new Set());
+  const { addSchemaTab } = useTabs();
 
   const { isConnected, activeConnection, schema, connectionError } = useConnection();
 
@@ -30,25 +32,43 @@ export function SchemaSection(): React.JSX.Element {
     setOpenTables(new Set());
   };
 
+  const schemaActions =
+    isConnected && activeConnection
+      ? [
+          <Button
+            key="view-schema"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 cursor-pointer"
+            title="View Schema"
+            onClick={() => {
+              addSchemaTab();
+            }}
+          >
+            <Eye className="size-4" />
+          </Button>,
+          <Button
+            key="collapse-all"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 cursor-pointer"
+            title="Collapse All"
+            onClick={() => {
+              collapseAllTables();
+            }}
+          >
+            <CopyMinus className="size-4" />
+          </Button>,
+        ]
+      : [];
+
   return (
     <CollapsibleResizablePanel
       title="Schema"
       defaultSize={65}
       minSize={10}
       collapsedSize={5}
-      actions={
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 cursor-pointer"
-          title="Collapse All"
-          onClick={() => {
-            collapseAllTables();
-          }}
-        >
-          <CopyMinus className="size-4" />
-        </Button>
-      }
+      actions={schemaActions}
     >
       <div className="text-xs space-y-1 px-2">
         {connectionError && <p className="text-red-500 text-xs m-2">{connectionError}</p>}

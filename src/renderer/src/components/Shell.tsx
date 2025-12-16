@@ -11,15 +11,16 @@ import {
   ResizablePanelGroup,
 } from '@renderer/shadcn/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shadcn/ui/tabs';
-import { Plus, X } from 'lucide-react';
+import { Code, Database, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { SettingsDialog } from './SettingsDialog';
 import TitleBar from './TitleBar';
+import { SchemaDiagram } from './diagram/SchemaDiagram';
 
 export default function Shell(): React.JSX.Element {
   const [showSettings, setShowSettings] = useState(false);
 
-  const { tabs, activeTabId, setActiveTab, addTab, removeTab } = useTabs();
+  const { tabs, activeTabId, activeTab, setActiveTab, addTab, removeTab } = useTabs();
 
   return (
     <div className="h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col">
@@ -48,21 +49,26 @@ export default function Shell(): React.JSX.Element {
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="h-9 relative group min-w-[120px] border-none rounded-b-none dark:data-[state=active]:bg-background bg-muted/30 text-xs"
+                    asChild
+                    className="h-9 relative w-30 border-none rounded-b-none dark:data-[state=active]:bg-background bg-muted/30 text-xs cursor-pointer"
                   >
-                    <span className="mr-2 truncate max-w-[100px]">{tab.title}</span>
-                    {tabs.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        className="opacity-0 group-hover:opacity-100 hover:bg-muted rounded-full transition-opacity size-6 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeTab(tab.id);
-                        }}
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    )}
+                    <div className="flex items-center justify-between gap-2">
+                      {tab.type === 'editor' && <Code className="size-3.5" />}
+                      {tab.type === 'schema' && <Database className="size-3.5" />}
+                      <span className="max-w-20">{tab.title}</span>
+                      {tabs.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          className="opacity-0 hover:opacity-100 hover:bg-muted rounded-full transition-opacity size-6 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeTab(tab.id);
+                          }}
+                        >
+                          <X className="size-4" />
+                        </Button>
+                      )}
+                    </div>
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -80,31 +86,35 @@ export default function Shell(): React.JSX.Element {
               value={activeTabId}
               className="flex-1 h-full mt-0 border-0 p-0 data-[state=active]:flex flex-col"
             >
-              <ResizablePanelGroup direction="horizontal" className="h-full flex-1">
-                {/* Center Panel: Editor & Results */}
-                <ResizablePanel defaultSize={70}>
-                  <ResizablePanelGroup direction="vertical">
-                    {/* Top: Editor */}
-                    <ResizablePanel defaultSize={60} className="flex flex-col">
-                      <CenterTopPanel />
-                    </ResizablePanel>
+              {activeTab.type === 'schema' ? (
+                <SchemaDiagram />
+              ) : (
+                <ResizablePanelGroup direction="horizontal" className="h-full flex-1">
+                  {/* Center Panel: Editor & Results */}
+                  <ResizablePanel defaultSize={70}>
+                    <ResizablePanelGroup direction="vertical">
+                      {/* Top: Editor */}
+                      <ResizablePanel defaultSize={60} className="flex flex-col">
+                        <CenterTopPanel />
+                      </ResizablePanel>
 
-                    <ResizableHandle />
+                      <ResizableHandle />
 
-                    {/* Bottom: Results */}
-                    <ResizablePanel defaultSize={40} className="flex flex-col bg-background">
-                      <CenterBottomPanel />
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
-                </ResizablePanel>
+                      {/* Bottom: Results */}
+                      <ResizablePanel defaultSize={40} className="flex flex-col bg-background">
+                        <CenterBottomPanel />
+                      </ResizablePanel>
+                    </ResizablePanelGroup>
+                  </ResizablePanel>
 
-                <ResizableHandle />
+                  <ResizableHandle />
 
-                {/* Right Panel: AI Chat */}
-                <ResizablePanel defaultSize={30} className="flex flex-col min-w-[280px]">
-                  <RightPanel />
-                </ResizablePanel>
-              </ResizablePanelGroup>
+                  {/* Right Panel: AI Chat */}
+                  <ResizablePanel defaultSize={30} className="flex flex-col min-w-[280px]">
+                    <RightPanel />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              )}
             </TabsContent>
           </Tabs>
         </ResizablePanel>

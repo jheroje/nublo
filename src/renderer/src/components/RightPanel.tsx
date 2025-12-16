@@ -1,7 +1,7 @@
 import { isAIProvider } from '@common/ai/utils';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
 import { useSettings } from '@renderer/contexts/settings/SettingsContext';
-import { useTabs } from '@renderer/contexts/tabs/TabsContext';
+import { useEditorTab } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import { Textarea } from '@renderer/shadcn/ui/textarea';
 import React, { useMemo, useState } from 'react';
@@ -15,7 +15,8 @@ export function RightPanel(): React.JSX.Element {
 
   const { settings } = useSettings();
   const { isConnected, schema } = useConnection();
-  const { activeTab, activeTabId, updateTabState, appendMessage, updateLastMessage } = useTabs();
+  const { activeTab, activeTabId, updateTabState, appendMessage, updateLastMessage } =
+    useEditorTab();
 
   const { chatPrompt, selectedModel, chatMessages } = activeTab;
 

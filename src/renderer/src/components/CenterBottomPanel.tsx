@@ -1,5 +1,5 @@
 import { QueryRow } from '@common/db/types';
-import { useTabs } from '@renderer/contexts/tabs/TabsContext';
+import { useEditorTab } from '@renderer/contexts/tabs/TabsContext';
 import { ScrollArea, ScrollBar } from '@renderer/shadcn/ui/scroll-area';
 import {
   Table,
@@ -18,7 +18,7 @@ import {
 import React, { useMemo } from 'react';
 
 export function CenterBottomPanel(): React.JSX.Element {
-  const { activeTab } = useTabs();
+  const { activeTab } = useEditorTab();
   const { queryError, queryResult } = activeTab;
 
   const data = useMemo(() => queryResult?.rows || [], [queryResult?.rows]);

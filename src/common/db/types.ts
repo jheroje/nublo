@@ -43,6 +43,10 @@ export type SchemaColumn = {
   isNullable: boolean;
   isPrimaryKey: boolean;
   isForeignKey: boolean;
+  references?: {
+    table: string;
+    column: string;
+  };
 };
 
 export type SchemaTable = {

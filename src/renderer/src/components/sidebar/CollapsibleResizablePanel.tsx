@@ -4,11 +4,13 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import { ImperativePanelHandle } from 'react-resizable-panels';
 
+type ActionElement = React.ReactElement<ClickableProps> | React.ReactNode;
+
 type PanelHeaderProps = {
   title: string;
   collapsed: boolean;
   toggle: () => void;
-  actions?: React.ReactElement<ClickableProps> | React.ReactNode;
+  actions?: ActionElement | Array<ActionElement>;
 };
 
 type ClickableProps = { onClick: (e: React.MouseEvent) => void };
@@ -56,7 +58,7 @@ function PanelBody({ collapsed, children }: PanelBodyProps) {
 
 type CollapsibleResizablePanelProps = {
   title: string;
-  actions?: React.ReactElement<ClickableProps> | React.ReactNode;
+  actions?: ActionElement | Array<ActionElement>;
   defaultSize?: number;
   minSize?: number;
   collapsedSize?: number;

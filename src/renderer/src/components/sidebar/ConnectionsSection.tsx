@@ -26,7 +26,7 @@ export function ConnectionsSection(): React.JSX.Element {
           <Button
             variant="ghost"
             size="icon"
-            className="h-5 w-5 cursor-pointer"
+            className="h-6 w-6 cursor-pointer"
             onClick={() => handleOpenDialog()}
           >
             <Plus className="size-4" />

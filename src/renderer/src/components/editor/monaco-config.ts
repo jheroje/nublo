@@ -47,8 +47,6 @@ monaco.languages.register({ id: 'sql' });
 monaco.languages.setLanguageConfiguration('sql', sqlConf);
 monaco.languages.setMonarchTokensProvider('sql', FIXED_JOIN_SQL);
 
-console.log('tokens for "user_id":', monaco.editor.tokenize('user_id', 'sql'));
-
 const NUBLO_DARK_THEME_CONFIG: monaco.editor.IStandaloneThemeData = {
   base: 'vs-dark',
   inherit: true,

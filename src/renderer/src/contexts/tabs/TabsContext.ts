@@ -7,7 +7,8 @@ export type TabsState = {
   activeTabId: string;
 };
 
-export type Tab = {
+export type EditorTab = {
+  type: 'editor';
   id: string;
   title: string;
   editorSQL: string;
@@ -18,13 +19,22 @@ export type Tab = {
   selectedModel: string;
 };
 
-type TabsContextValue = {
+export type SchemaTab = {
+  type: 'schema';
+  id: string;
+  title: string;
+};
+
+export type Tab = EditorTab | SchemaTab;
+
+export type TabsContextValue = {
   tabs: Tab[];
   activeTabId: string;
   addTab: () => void;
+  addSchemaTab: () => void;
   removeTab: (id: string) => void;
   setActiveTab: (id: string) => void;
-  updateTabState: (id: string, updates: Partial<Tab>) => void;
+  updateTabState: (id: string, updates: Partial<EditorTab>) => void;
   appendMessage: (id: string, message: AIMessage) => void;
   updateLastMessage: (id: string, update: Partial<AIMessage>) => void;
 };
@@ -45,4 +55,18 @@ export function useTabs() {
   }
 
   return { ...context, activeTab };
+}
+
+export function useEditorTab() {
+  const context = useTabs();
+  const { activeTab } = context;
+
+  if (activeTab.type !== 'editor') {
+    throw new Error('useEditorTab must be used within an editor tab context');
+  }
+
+  return {
+    ...context,
+    activeTab,
+  };
 }

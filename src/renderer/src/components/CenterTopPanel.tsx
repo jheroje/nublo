@@ -1,12 +1,12 @@
 import { Editor } from '@renderer/components/editor/SQLEditor';
 import { useConnection } from '@renderer/contexts/connection/ConnectionContext';
-import { useTabs } from '@renderer/contexts/tabs/TabsContext';
+import { useEditorTab } from '@renderer/contexts/tabs/TabsContext';
 import { Button } from '@renderer/shadcn/ui/button';
 import React from 'react';
 
 export function CenterTopPanel(): React.JSX.Element {
   const { activeConnection, isConnected, schema } = useConnection();
-  const { activeTab, activeTabId, updateTabState } = useTabs();
+  const { activeTab, activeTabId, updateTabState } = useEditorTab();
 
   const { editorSQL } = activeTab;
 

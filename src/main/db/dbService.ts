@@ -32,11 +32,16 @@ export function setupDBService(): void {
               kcu.table_name,
               kcu.column_name,
               BOOL_OR(tc.constraint_type = 'PRIMARY KEY') AS is_primary_key,
-              BOOL_OR(tc.constraint_type = 'FOREIGN KEY') AS is_foreign_key
+              BOOL_OR(tc.constraint_type = 'FOREIGN KEY') AS is_foreign_key,
+              MAX(CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.table_name END) AS foreign_table_name,
+              MAX(CASE WHEN tc.constraint_type = 'FOREIGN KEY' THEN ccu.column_name END) AS foreign_column_name
           FROM information_schema.key_column_usage kcu
           JOIN information_schema.table_constraints tc
             ON  tc.constraint_name = kcu.constraint_name
             AND tc.table_schema = kcu.table_schema
+          LEFT JOIN information_schema.constraint_column_usage ccu
+            ON tc.constraint_name = ccu.constraint_name
+            AND tc.table_schema = ccu.table_schema
           GROUP BY
               kcu.table_schema,
               kcu.table_name,
@@ -48,7 +53,9 @@ export function setupDBService(): void {
           c.data_type,
           c.is_nullable,
           COALESCE(k.is_primary_key, false) AS is_primary_key,
-          COALESCE(k.is_foreign_key, false) AS is_foreign_key
+          COALESCE(k.is_foreign_key, false) AS is_foreign_key,
+          k.foreign_table_name,
+          k.foreign_column_name
       FROM information_schema.columns c
       LEFT JOIN key_flags k
         ON  c.table_schema = k.table_schema
@@ -75,6 +82,12 @@ export function setupDBService(): void {
         isNullable: row.is_nullable === 'YES',
         isPrimaryKey: row.is_primary_key,
         isForeignKey: row.is_foreign_key,
+        references: row.is_foreign_key
+          ? {
+              table: row.foreign_table_name,
+              column: row.foreign_column_name,
+            }
+          : undefined,
       });
     });
 
